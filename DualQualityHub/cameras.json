@@ -1,0 +1,17 @@
+[
+  {"id": "sony", "name": "Sony ZV-1F", "link": "USB", "delay_ms": 0, "capture": {
+    "enabled": false,
+    "Windows": ["-f","dshow","-video_size","1280x720","-framerate","30","-vcodec","mjpeg","-i","video=REPLACE_SONY_VIDEO_NAME:audio=REPLACE_SONY_AUDIO_NAME"],
+    "Linux": ["-f","v4l2","-input_format","mjpeg","-video_size","1280x720","-framerate","30","-i","/dev/v4l/by-id/REPLACE_SONY","-f","alsa","-i","plughw:CARD=REPLACE_SONY,DEV=0"],
+    "Darwin": ["-f","avfoundation","-framerate","30","-video_size","1280x720","-i","REPLACE_VIDEO_INDEX:REPLACE_AUDIO_INDEX"]
+  }},
+  {"id": "gopro1", "legacy_key": "gopro1", "name": "GoPro 1", "link": "USB", "delay_ms": 0, "capture": {
+    "enabled": false,
+    "Windows": ["-f","dshow","-video_size","1920x1080","-framerate","30","-i","video=GoPro Webcam"],
+    "Linux": ["-f","v4l2","-video_size","1920x1080","-framerate","30","-i","/dev/video42"],
+    "Darwin": ["-f","avfoundation","-framerate","30","-video_size","1920x1080","-i","REPLACE_GOPRO_INDEX:none"]
+  }},
+  {"id": "osmo", "legacy_key": "dji", "name": "DJI Osmo 360", "link": "Wi-Fi", "delay_ms": 0},
+  {"id": "gopro2", "legacy_key": "gopro2", "name": "GoPro 2", "link": "Wi-Fi", "delay_ms": 0},
+  {"id": "gopro3", "legacy_key": "gopro3", "name": "GoPro 3", "link": "Wi-Fi", "delay_ms": 0}
+]
