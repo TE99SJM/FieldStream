@@ -1,0 +1,27 @@
+dashboard_port: 8088
+obs_collection: Mobile Hub
+master_mic: Mic/Aux
+delay_filter: async
+cameras:
+  - id: sony
+    label: Sony ZV-1F
+    transport: usb
+    device: ZV-1F
+    width: 1280
+    height: 720
+    fps: 30
+    format: mjpeg
+  - id: gopro1
+    label: GoPro USB
+    transport: usb
+    device: GoPro Webcam
+    width: 1920
+    height: 1080
+    fps: 30
+    format: auto
+  - id: dji
+    label: DJI Osmo 360
+    transport: rtmp
+  - id: gopro2
+    label: GoPro Wireless
+    transport: rtmp

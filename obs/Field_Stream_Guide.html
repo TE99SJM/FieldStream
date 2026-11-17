@@ -1,0 +1,1751 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Field Stream · Deployment guide</title><style>:root{font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#1c3028;background:#f3f4ef;font-size:16px;line-height:1.55}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}a{color:#176647;text-decoration-thickness:1px;text-underline-offset:.18em}a:hover{text-decoration-thickness:2px}
+.hero{background:#173d33;color:#f9fbf5;padding:52px max(22px,calc((100vw - 1110px)/2)) 42px;border-bottom:5px solid #bd9d54}
+h1{font:normal clamp(48px,7vw,86px)/1.06 Georgia,serif;margin:0;letter-spacing:-.035em}.hero p{margin:13px 0 0;font-size:clamp(18px,3vw,27px);color:#dee9dc}
+nav{background:#fff;border-bottom:1px solid #d6dfd5;padding:14px max(22px,calc((100vw - 1110px)/2));display:flex;gap:10px 26px;flex-wrap:wrap;font-size:.9rem;font-weight:650}nav a{text-decoration:none}main{max-width:1154px;margin:0 auto;padding:22px 22px 70px}main>p{max-width:96ch}h2,h3,h4{line-height:1.16;scroll-margin:18px}
+h2{border-top:2px solid #2c574a;margin:46px 0 20px;padding-top:20px;font:normal clamp(29px,4vw,42px)/1.12 Georgia,serif;color:#163c30}
+h3{font-size:1.42rem;margin:30px 0 12px;color:#21533f}h4{font-size:1.1rem;margin:4px 0 10px}p{margin:13px 0}
+strong{font-weight:675}code{font: .86em/1.45 "Cascadia Code",Consolas,monospace;padding:.12em .34em;border:1px solid #d9e1d8;border-radius:4px;background:#eaf0e8;overflow-wrap:anywhere}
+pre{border-radius:8px;background:#132d27;color:#ecf5ef;padding:18px 20px;margin:14px 0 18px;overflow-x:auto;tab-size:4}pre code{background:none;border:0;color:inherit;padding:0;white-space:pre;font-size:.86rem;overflow-wrap:normal}
+.tablewrap{overflow-x:auto;border:1px solid #c6d2c7;background:white;margin:16px 0 23px;border-radius:8px}
+table{border-collapse:collapse;width:100%;text-align:left}table th,table td{padding:10px 14px;vertical-align:top;border-bottom:1px solid #dee5dd}table th{font-weight:650;background:#e5ece3;color:#153e30;font-size:.9rem}tr:last-child td{border-bottom:none}table code{background:#f2f5ee;border:0}
+table td:first-child{font-weight:570}table th[style*="right"],table td[style*="right"]{font-variant-numeric:tabular-nums}
+label{font-weight:600}input:not([type=checkbox]),select,button{font:inherit;border:1px solid #a1b6a5;border-radius:5px;background:white;padding:5px 9px;color:#153b2d}input:not([type=checkbox]){max-width:112px;width:100%}button{cursor:pointer;font-weight:620;background:#e8f0e6}
+button:hover{background:#d6e6d4}input:focus,button:focus,select:focus,a:focus{outline:2px solid #558c55;outline-offset:2px}
+.calculator{border:1px solid #aabfaa;background:white;border-radius:10px;padding:18px 22px;margin:20px 0}.calculator .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.calculator .tablewrap{border:0;margin:10px 0}.calculator output{font-variant-numeric:tabular-nums;font-weight:650}.calculator .hint{font-size:.91rem;color:#486150}.calculator th{width:33%}
+.vizrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}figure{margin:0}figcaption{font-weight:620;font-size:.86rem;color:#395348;margin:6px 0}.sceneart,.network{width:100%;height:auto;display:block}.netwrap{background:#fff;border-radius:10px;border:1px solid #c4d0c5;margin:16px 0;padding:8px;overflow-x:auto}
+.details{border:1px solid #d1dacd;border-radius:6px;background:#fbfcf8;margin:8px 0;padding:10px 14px}summary{cursor:pointer;color:#1c513b;font-weight:650}
+@media(max-width:720px){:root{font-size:15px}.hero{padding-top:32px;padding-bottom:25px}main{padding:16px 12px 44px}.tablewrap>table{min-width:570px}.calculator .tablewrap>table{min-width:0}.calculator{padding:13px}.calculator th,.calculator td{padding:8px 3px}.vizrow{grid-template-columns:1fr}.network{min-width:650px}}
+@media print{html{scroll-behavior:auto}:root{background:white;font-size:10pt}nav,.controls{display:none}.hero,main{padding:10px 0;background:white;color:#173d33}.hero p{color:#35463b}.hero{border-width:2px}h1{font-size:38pt}h2{break-after:avoid;font-size:22pt}h3{break-after:avoid}.tablewrap,.netwrap{overflow:visible}tr,.vizrow,figure{break-inside:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f4ef;color:#132d27}pre code{white-space:pre-wrap}details:not([open]){display:none}a{color:#234f3a}}
+</style></head><body><header class="hero"><h1>Field Stream</h1><p>Five cameras, one OBS program</p></header><nav aria-label="Guide sections"><a href="#windows-installation">Windows</a><a href="#linux-installation">Linux</a><a href="#macos-installation">macOS</a><a href="#step1">Cameras and LAN</a><a href="#step2">2 · OBS and sync</a><a href="#step3">3 · Startup and recovery</a><a href="#pre-stream-checklist">Pre-stream checklist</a><a href="#files">Config and scripts</a></nav><main><p>Use this kit to run a Sony ZV-1F, one wired GoPro, two wireless GoPros and a DJI Osmo 360 from one Windows, Linux or macOS computer. OBS gives you one 1080p30 program, a five-camera grid, a picture-in-picture shot and five full-screen camera scenes. Camera video stays on the field network until you choose an output destination in OBS. Work through one checkpoint at a time.</p>
+<p><strong>Compatibility decision.</strong> This build uses USB 3.x <strong>host ports</strong> and 5 Gb/s data cables. The Sony's USB-C port negotiates USB 2.0 and delivers native 720p MJPEG. The GoPro uses USB networking. Windows and macOS expose it through GoPro Webcam. On Linux, supported models stream a webcam picture directly over the USB network interface. If the requirement is native UVC at a negotiated 5 Gb/s on both camera ends, these two named cameras cannot deliver that combination. The DJI contributes a flat single-lens angle at 1080p30. Use the GoPro model check below before installing software. <a href="https://www.sony.com/electronics/support/compact-cameras-dsc-zv-series/zv-1f/specifications">Sony specifications</a> · <a href="https://helpguide.sony.net/dc/2210/v1/en/contents/TP1000934575.html">Sony USB formats</a> · <a href="https://gopro.github.io/OpenGoPro/docs/faq/">Open GoPro streaming matrix</a> · <a href="https://www.dji.com/360/faq">DJI formats</a></p>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Host</th>
+<th>Sony USB capture</th>
+<th>Primary GoPro</th>
+<th>Receiver package</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows x64</td>
+<td>Video Capture Device (DirectShow)</td>
+<td>GoPro Webcam virtual camera</td>
+<td>Windows ZIP</td>
+</tr>
+<tr class="even">
+<td>Linux x86-64 or ARM64</td>
+<td>Video Capture Device (V4L2)</td>
+<td>Open GoPro USB MPEG-TS on a supported camera, or Quik RTMP</td>
+<td>Linux tar.gz</td>
+</tr>
+<tr class="odd">
+<td>macOS 13+ on Intel or Apple Silicon</td>
+<td>Video Capture Device (AVFoundation)</td>
+<td>GoPro Webcam camera extension</td>
+<td>macOS tar.gz</td>
+</tr>
+</tbody>
+</table></div>
+<p>For a first install, extract into an empty, stable folder. On each computer, provision a fresh local Field Stream collection, bind its own devices, and measure its own delays. Camera device IDs and measured timing depend on the host. If upgrading a customized Windows installation, save your YAML and export your existing collection first. Use one host and one MediaMTX receiver for a session. Each package includes the native receiver binary or binaries, the same source names and OBS layouts, and an offline Python dependency install. The camera URLs stay the same when a different host is assigned the field Ethernet IP.</p>
+<h2 id="step1">1. Wire the cameras and build the field network</h2>
+<h3 id="signal-map">Signal map</h3><figure class="netwrap"><svg aria-label="Two wired camera paths and three independent Wi-Fi cameras joined by Ethernet at the OBS host." class="network" role="img" viewbox="0 0 1050 268"><defs><marker id="tip" markerheight="4" markerunits="strokeWidth" markerwidth="4" orient="auto" refx="9" refy="5" viewbox="0 0 10 10"><path d="M0 0 L10 5 L0 10 z" fill="#6b8877"></path></marker></defs><rect fill="#24493d" height="60" rx="6" width="196" x="10" y="20"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="580" text-anchor="start" x="23" y="45">Sony ZV-1F</text><text fill="#d8e5d8" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="start" x="23" y="65">USB-C webcam</text><rect fill="#24493d" height="60" rx="6" width="196" x="10" y="100"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="580" text-anchor="start" x="23" y="125">GoPro 1</text><text fill="#d8e5d8" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="start" x="23" y="145">USB-C webcam</text><rect fill="#24493d" height="60" rx="6" width="196" x="10" y="180"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="580" text-anchor="start" x="23" y="205">DJI + GoPros 2 &amp; 3</text><text fill="#d8e5d8" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="start" x="23" y="225">Three Wi-Fi publishers</text><rect fill="#e6ede5" height="60" rx="6" width="200" x="251" y="20"></rect><text fill="#254d3a" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="580" text-anchor="start" x="263" y="45">USB 3.x host port A</text><text fill="#43624c" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="580" text-anchor="start" x="263" y="65">Sony UVC / UAC</text><path d="M206 50 H245" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><rect fill="#e6ede5" height="60" rx="6" width="200" x="251" y="100"></rect><text fill="#254d3a" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="580" text-anchor="start" x="263" y="125">USB 3.x host port B</text><text fill="#43624c" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="580" text-anchor="start" x="263" y="145">GoPro USB webcam</text><path d="M206 130 H245" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><rect fill="#e6ede5" height="60" rx="6" width="200" x="251" y="180"></rect><text fill="#254d3a" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="580" text-anchor="start" x="263" y="205">Field access point</text><text fill="#43624c" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="580" text-anchor="start" x="263" y="225">5 GHz → Ethernet</text><path d="M206 210 H245" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><rect fill="#edf0dc" height="60" rx="6" width="166" x="490" y="180"></rect><text fill="#3a4d2e" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="580" text-anchor="start" x="500" y="205">MediaMTX</text><text fill="#506044" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="580" text-anchor="start" x="500" y="225">TCP 1935 · PC</text><rect fill="#173d33" height="112" rx="8" width="145" x="707" y="74"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="580" text-anchor="middle" x="779" y="122">OBS Studio</text><text fill="#d8e5d8" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="580" text-anchor="middle" x="779" y="149">5 nested feeds</text><rect fill="#e5eae2" height="52" rx="6" width="139" x="897" y="72"></rect><text fill="#244333" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="580" text-anchor="middle" x="966" y="103">Recording</text><rect fill="#e5eae2" height="52" rx="6" width="139" x="897" y="140"></rect><text fill="#244333" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="580" text-anchor="middle" x="966" y="171">Live program</text><path d="M451 50 H667 V95 H701" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><path d="M451 130 H701" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><path d="M451 210 H484" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><path d="M656 210 H672 V165 H701" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><path d="M852 105 H874 V98 H891" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path><path d="M852 155 H874 V166 H891" fill="none" marker-end="url(#tip)" stroke="#6b8877" stroke-width="3"></path></svg></figure>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Camera or device</th>
+<th>Connection to host</th>
+<th>OBS input and role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sony ZV-1F</td>
+<td>USB-C data cable → USB 3.x host port A</td>
+<td>Video Capture Device · Sony · 1280×720 MJPEG, 30 fps in NTSC</td>
+</tr>
+<tr class="even">
+<td>GoPro 1</td>
+<td>USB-C data cable → USB 3.x host port B → GoPro Webcam or Linux USB network decoder</td>
+<td>Video Capture Device on Windows/macOS or Media Source on Linux · GoPro USB · up to 1920×1080 at 30 fps, video only</td>
+</tr>
+<tr class="odd">
+<td>GoPro 2 and GoPro 3</td>
+<td>Each camera joins field Wi-Fi → access point → Ethernet → local MediaMTX</td>
+<td>Two independent Media Sources · one stream key per GoPro</td>
+</tr>
+<tr class="even">
+<td>DJI Osmo 360</td>
+<td>Single Lens → field Wi-Fi → access point → Ethernet → local MediaMTX</td>
+<td>Media Source · DJI · 1920×1080, 30 fps, 16:9</td>
+</tr>
+<tr class="odd">
+<td>Master microphone</td>
+<td>PC audio input, USB mic or Sony's separate USB audio endpoint</td>
+<td>Global Mic/Aux · 48 kHz · stays live across all seven scenes</td>
+</tr>
+<tr class="even">
+<td>Program</td>
+<td>OBS → local recording and/or chosen streaming service</td>
+<td>One composite encode. Only the outbound program needs WAN upload bandwidth.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>1A · Identify each GoPro.</strong> Reserve a webcam-compatible Black model for GoPro 1. On Windows and Mac a HERO9 Black or HERO10 Black is a documented example. The Linux USB helper targets current-firmware HERO11/12/13 Black cameras. Verify the exact model, OS and firmware at GoPro Webcam, especially for Mini, MAX and cameras labeled simply HERO. On the other two, pair each with Quik and check that <strong>Live → RTMP</strong> appears. HERO7 Black tops out at 720p live. Compatible newer Black models offer 1080p. Recording resolution on the camera does not determine these live modes. One supported GoPro serves the wired position. Each additional camera gets a dedicated RTMP URL, so it has its own persistent identity in OBS. <a href="https://gopro.com/webcam">GoPro Webcam</a> · <a href="https://gopro.com/content/dam/help/hero10-black/manuals/HERO10Black_UM_ENG_REVB.pdf">HERO10 manual</a> · <a href="https://community.gopro.com/s/article/How-To-Live-Stream-From-Your-GoPro?language=en_US">GoPro live model guide</a></p>
+<p><strong>1B · Allocate the ports.</strong> Use two short, data-rated USB 5 Gb/s or faster cables with USB-C camera ends. Choose USB-A or USB-C host ends to fit. Start with two direct motherboard/laptop ports. On Windows, in Device Manager, select <strong>View → Devices by connection</strong>, or use Microsoft USBView. Follow each device up to its hub and xHCI controller. Pick separate controller branches if available and keep a capture SSD/dock off a heavily loaded upstream link. If both connect to a single controller, try the two direct ports first. A powered hub can supply current but still shares one upstream link. Check the host or hub's sustained <strong>per-port power while carrying data</strong>. <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/usbview">Microsoft USBView</a> · <a href="https://compliance.usb.org/index.asp?UpdateFile=Policies">USB-IF power policies</a></p>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Bandwidth budget</th>
+<th>Payload calculation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>USB 3.0 / USB 3.2 Gen 1</td>
+<td>5.0 Gb/s signaling × 8/10 coding = 4.0 Gb/s before protocol overhead, per link. Devices behind one hub share its uplink. The controller's PCIe link and other devices also matter.</td>
+</tr>
+<tr class="even">
+<td>USB 2.0 High-Speed on the Sony</td>
+<td>480 Mb/s signaling with lower usable payload. SuperSpeed capacity on the host does not raise this link rate.</td>
+</tr>
+<tr class="odd">
+<td>Hypothetical uncompressed YUY2</td>
+<td>width × height × 16 bits/pixel × fps. 720p30 = 442.37 Mb/s. 1080p30 = 995.33 Mb/s. Neither is the Sony's transmitted MJPEG rate.</td>
+</tr>
+<tr class="even">
+<td>Worked compressed budget</td>
+<td>At an <strong>assumed</strong> 150,000 bytes/JPEG × 30 × 8, Sony video is 36 Mb/s. Its 48,000 × 16 × 2 PCM audio adds 1.536 Mb/s. Add ~6 Mb/s for GoPro USB video → <strong>43.54 Mb/s</strong> across the two inputs before packet/USB overhead. MJPEG changes with detail and motion.</td>
+</tr>
+</tbody>
+</table></div>
+<p>For a measured budget on Windows, close applications using the Sony, run the commands below in PowerShell and replace the quoted device name with the DirectShow name printed by the first command. Film moving foliage or a detailed scene. FFmpeg's device enumeration can exit with an error after printing the list. The last command reports the average and highest single-frame size. Multiply bytes by 30 × 8 ÷ 1,000,000 for estimated Mb/s at 30 fps. The peak-frame figure is a conservative projection.</p>
+<pre class="powershell"><code>ffmpeg -hide_banner -list_devices true -f dshow -i dummy
+ffmpeg -f dshow -video_size 1280x720 -framerate 30 -vcodec mjpeg -i video="YOUR SONY DEVICE" -t 30 -c:v copy sony-test.avi
+ffprobe -v error -select_streams v:0 -show_entries packet=size -of csv=p=0 sony-test.avi | Measure-Object -Average -Maximum</code></pre>
+<p><strong>1C · Set the Sony.</strong> With a charged NP-BX1 installed, select <strong>MENU → Setup → USB → USB Connection Mode → USB Streaming</strong> and <strong>USB Power Supply → On</strong>. For the US frame rate, check <strong>Setup → Area/Date → NTSC/PAL Selector → NTSC</strong> before attaching the cable. Connect, turn it on, then open its OBS input. The camera should transition from <em>USB Streaming: Standby</em> to <em>Output</em>. USB streaming fixes the format at MJPEG 1280×720/30 (25 in PAL) and disables the normal power-save timer and internal movie recording. Keep the battery installed. Operating power from USB can supplement the battery without charging it, and the battery can still decline under load. Shade the camera, swing the screen out and start with <strong>Setup → Power Setting Option → Auto Power OFF Temp. → Standard</strong>. For a fixed tripod installation, Sony offers <strong>High</strong> if needed. It allows higher body temperature and retains thermal shutdown. <a href="https://helpguide.sony.net/dc/2210/v1/en/contents/TP1000934575.html">Sony USB streaming</a> · <a href="https://helpguide.sony.net/dc/2210/v1/en/contents/TP1000915293.html">USB power</a> · <a href="https://helpguide.sony.net/dc/2210/v1/en/contents/TP1000927978.html">Temperature setting</a></p>
+<p><strong>1D · Set the GoPros.</strong> Update the cameras before the outing. For the wired unit, follow the matching operating-system setup below. Windows and macOS use the GoPro Webcam utility. Linux uses the included USB sender control. On a HERO9 Black, swipe down, swipe left, then select <strong>Connections → USB Connection → GoPro Connect</strong>. HERO10 Black uses webcam mode by default. Use the webcam-mode instructions for your particular model. On Windows and macOS, verify the picture in the utility, close the preview, and bind the virtual camera in OBS. Set <strong>Preferences → General → Auto Power Off → Never</strong> on HERO Black models offering that option. On wireless cameras select the live resolution in Quik. Disable optional SD recording and dim or shorten the display timeout to reduce heat. Start with a charged battery. A supported removable-battery GoPro can run without it if the data port or external supply delivers the model's required sustained current. Test this under full load before relying on it. A standard 500 mA USB 2.0 or 900 mA USB 3.x downstream port is a different power budget from a 5 V / 2 A supply. Wireless units can use separate power banks. <a href="https://gopro.com/content/dam/help/hero9-black/manuals/HERO9Black_UM_ENG_REVB.pdf">HERO9 manual</a> · <a href="https://gopro.com/content/dam/help/hero10-black/manuals/HERO10Black_UM_ENG_REVB.pdf">HERO10 manual</a> · <a href="https://gopro.com/en/us/shop/mounts-accessories/usb-pass-through-door/ADCOD-001.html">GoPro external power</a></p>
+<p><strong>1E · Configure the LAN.</strong> Use a field router/AP with a password-protected SSID and a wired Ethernet connection to the PC. Use these values for the supplied configuration.</p>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Setting</th>
+<th>Field value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Router, DHCP, host</td>
+<td>Router <code>192.168.77.1/24</code>. Reserve <code>192.168.77.10</code> for the host Ethernet MAC. For example, use <code>.100–.199</code> for other leases and reserve <code>.10</code> outside that pool if your router supports this. Cameras can use DHCP.</td>
+</tr>
+<tr class="even">
+<td>Wireless network</td>
+<td>Dedicated SSID <code>FieldCams</code>, WPA2-Personal AES with a strong password, 5 GHz, US non-DFS channel 36 with 40 MHz width as a starting point. Survey the site. Try 20 MHz or a cleaner non-DFS channel when crowded.</td>
+</tr>
+<tr class="odd">
+<td>Reachability</td>
+<td>Keep wired and wireless devices on the same LAN. Disable AP/client isolation and guest isolation for this SSID. On phones, allow Bluetooth and local-network permissions.</td>
+</tr>
+<tr class="even">
+<td>Placement and capacity</td>
+<td>Elevate the AP, maintain sight lines and check each camera at its intended position. Aim for −65 dBm or better at the AP as a starting point. Three cameras at an assumed 6 Mb/s each use ~18 Mb/s payload. Plan for at least ~36–54 Mb/s measured usable local throughput at the camera positions, then run all three feeds together.</td>
+</tr>
+<tr class="odd">
+<td>Internet</td>
+<td>Use field router WAN or cellular tether if needed. DJI's setup specifies secured Wi-Fi with internet access. GoPro can also report an internet check failure during live setup. The private RTMP destinations below keep the camera media on the LAN. Test WAN-loss and cold-start behavior on your actual firmware.</td>
+</tr>
+<tr class="even">
+<td>Different subnet</td>
+<td>Change the host address in <strong>all phone publish URLs and the firewall rule</strong>. Also update the camera subnet under <code>authInternalUsers → ips</code> in <code>server/mediamtx.yml</code>. Keep the local OBS read URLs and API on <code>127.0.0.1</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p>A phone hotspot works only if the camera clients can reach the PC and WAN checks pass. A dedicated AP with Ethernet to the PC avoids the extra wireless hop and the phone switching between AP and controller duties. Bench-check an unfamiliar hotspot for client isolation. <a href="https://www.dji.com/360/faq">DJI setup requirements</a> · <a href="https://gopro.github.io/OpenGoPro/docs/ble/protocol/protobuf/">GoPro live status codes</a> · <a href="https://help.ui.com/hc/en-us/articles/221029967-Optimizing-WiFi-Connectivity-and-Reducing-Latency">Wi-Fi channel and signal guidance</a></p>
+<h3 id="windows-installation">Windows installation</h3>
+<p><strong>1F · Prepare Windows before the field session.</strong> Extract the ZIP to <code>C:\FieldStream</code> so that the scripts and the <code>server</code> folder are directly inside it. Use 64-bit Windows 10/11 compatible with your GoPro driver and OBS release. Install OBS Studio with built-in WebSocket v5 (28 or later), FFmpeg 6 or newer with ffprobe, and the Python 3.12 x64 interpreter/launcher. If using Windows Package Manager, these commands install the prerequisites. Install GoPro Webcam separately from GoPro. Open a new PowerShell window after installation. <a href="https://obsproject.com/download">OBS Windows download</a> · <a href="https://gopro.com/webcam">GoPro Webcam</a> · <a href="https://ffmpeg.org/download.html">FFmpeg Windows builds</a> · <a href="https://www.python.org/downloads/windows/">Python for Windows</a></p>
+<pre class="powershell"><code>winget install --exact --id OBSProject.OBSStudio
+winget install --exact --id Gyan.FFmpeg
+winget install --exact --id Python.Python.3.12</code></pre>
+<p>The ZIP includes the official MediaMTX v1.21.4 Windows x64 executable, its license, the configured YAML and both Python wheels. The local Python install below uses those wheels. The included <code>server/mediamtx.exe</code> has SHA-256 <code>18ea5e8ddbe561c99262679acd03faab4a284713bda6e8a21319fc1b57f9765e</code>. Check it with <code>Get-FileHash .\server\mediamtx.exe -Algorithm SHA256</code> from the kit directory. If Windows marks the download as internet-origin, inspect the files and use <strong>Properties → Unblock</strong> on the downloaded ZIP before extracting. Commands assume Windows PowerShell from the kit directory. If local script execution is disabled, use the process-scoped command below for this PowerShell window.</p>
+<pre class="powershell"><code>Set-Location C:\FieldStream
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --no-index --find-links .\wheels -r .\requirements.txt
+.\server\mediamtx.exe --validate-conf=server/mediamtx.yml
+ffmpeg -version</code></pre>
+<p><strong>1G · Admit inbound camera traffic.</strong> On the trusted field Ethernet interface choose the Windows <strong>Private</strong> network profile. Check <code>Get-NetConnectionProfile</code> and <code>ipconfig</code> for the interface and IPv4 address. In an <strong>administrator</strong> PowerShell window run the following once. The rule applies only to the supplied server binary, the field LAN address and camera subnet. Recreate the rule for the new path if you move the kit. Keep the MediaMTX API and OBS WebSocket off the WAN. The scripts access both over loopback. No router port forwarding is needed.</p>
+<pre class="powershell"><code>Set-Location C:\FieldStream
+$ruleName = 'Field Stream - local camera ingest'
+if (-not (Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -DisplayName $ruleName -Direction Inbound -Action Allow -Profile Private -Protocol TCP -LocalPort 1935 -LocalAddress 192.168.77.10 -RemoteAddress 192.168.77.0/24 -Program (Resolve-Path .\server\mediamtx.exe).Path
+}</code></pre>
+<p><strong>1H · Start setup.</strong> In the original non-admin PowerShell window run the commands below. The first starts the receiver and OBS. Four configured paths can be present before any publisher is online. One is reserved for the optional Linux primary-camera fallback. The API columns distinguish an active publisher from a configured but idle path. Each stream key is a routing name. The YAML limits publishers by subnet, rejects replacement of active publishers, permits reads and API access on loopback, and disables the unused media protocols. Use a trusted dedicated camera network. <a href="https://github.com/bluenviron/mediamtx/releases/tag/v1.21.4">MediaMTX release</a> · <a href="https://mediamtx.org/docs/references/configuration-file">Config fields</a> · <a href="https://mediamtx.org/docs/features/control-api">Local API</a></p>
+<pre class="powershell"><code>.\Start-FieldStream.ps1 -Setup
+Test-NetConnection 127.0.0.1 -Port 1935
+(Invoke-RestMethod 'http://127.0.0.1:9997/v3/paths/list').items | Select-Object name,online,inboundBytes</code></pre>
+<h3 id="linux-installation">Linux installation</h3>
+<p>Use a graphical Linux session for OBS. On Debian 13 or Ubuntu 24.04/26.04, the native distro packages provide OBS 28+ with WebSocket v5. Run these commands as your normal user. The package manager prompts for administrator access to install dependencies. <a href="https://packages.debian.org/trixie/obs-studio">Debian OBS package</a> · <a href="https://obsproject.com/download">OBS downloads</a></p>
+<pre class="bash"><code>sudo apt update
+sudo apt install obs-studio obs-plugins ffmpeg python3 python3-venv iproute2 v4l-utils usbutils
+cd ~/Downloads
+tar -xzf Field_Stream_Linux_Kit.tar.gz -C ~
+cd ~/FieldStream
+python3 -m venv .venv
+.venv/bin/python -m pip install --no-index --find-links wheels -r requirements.txt
+ffmpeg -version
+./start-fieldstream.sh --setup</code></pre>
+<p>The archive includes MediaMTX for both Linux x86-64 and ARM64. The launcher selects the installed architecture. For a Raspberry Pi, the launcher can use ARM64 Linux with an OBS graphical desktop. Verify its available decoder, encoder, memory and sustained frame rate against your five-camera target before relying on it. On your Ubuntu mserver, a remote shell can operate MediaMTX, but running and supervising the OBS compositor needs a configured graphics session. Scripts expect Python 3.11+ and FFmpeg 6+. On other distributions install those prerequisites with your package manager. The launcher can also find the OBS Flatpak. If using it, grant read access to the kit's standby images with <code>flatpak override --user --filesystem="$PWD/assets:ro" com.obsproject.Studio</code> in the extracted folder, then restart OBS. Use a native OBS install as the reference for USB permission troubleshooting.</p>
+<p>For Sony device selection, <code>v4l2-ctl --list-devices</code> identifies capture nodes. With the Sony connected, <code>v4l2-ctl --list-formats-ext -d /dev/videoN</code> lists its capture formats (replace N). Prefer a stable <code>/dev/v4l/by-id/</code> link when exposed. Your account needs access to the capture node, typically provided by the active desktop session. Inspect <code>ls -l /dev/videoN</code>, <code>id</code>, and local seat permissions if capture fails. Use <code>lsusb -t</code> for USB topology.</p>
+<p><strong>Linux wired GoPro.</strong> Use an Open GoPro USB-webcam capable model such as a current-firmware HERO11 Black, HERO12 Black or HERO13 Black. Power it on, connect its USB data cable, and let Linux DHCP configure its USB network interface (CDC NCM). In the kit folder:</p>
+<pre class="bash"><code>.venv/bin/python gopro_usb.py list
+.venv/bin/python gopro_usb.py status
+.venv/bin/python gopro_usb.py start</code></pre>
+<p>The listing prints the interface name and both the host and camera IPv4 addresses. If several USB GoPros appear, append <code>--interface YOUR_INTERFACE</code> or <code>--serial LAST3</code> to <strong>each</strong> helper command, including <code>address</code> during scene setup. The helper checks that Linux routes directly through that USB interface, sends the camera control requests on TCP 8080 and receives the webcam stream as H.264 in MPEG-TS on UDP 8554. OBS opens that local USB address. Keep one reader for this UDP port. Close ffplay/ffprobe before binding OBS. Camera video stays on its USB cable. The camera’s webcam audio is unavailable, so use the shared master mic. <a href="https://github.com/gopro/OpenGoPro/blob/main/demos/python/multi_webcam/multi_webcam/webcam.py">GoPro USB webcam example</a> · <a href="https://gopro.github.io/OpenGoPro/">Open GoPro device support</a> · <a href="https://gopro.github.io/OpenGoPro/docs/faq/">GoPro streaming matrix</a></p>
+<p><strong>Linux firewall.</strong> If UFW is active, use <code>ip -br address</code> to get the field Ethernet device, then open only the field subnet for RTMP. For the USB GoPro, add a UDP exception only on its USB interface with the listed camera and host addresses. Substitute the actual values for the three interface/address placeholders before running.</p>
+<pre class="bash"><code>sudo ufw status
+sudo ufw allow in on FIELD_ETHERNET from 192.168.77.0/24 to 192.168.77.10 port 1935 proto tcp
+sudo ufw allow in on GOPRO_USB_IF from CAMERA_USB_IP to HOST_USB_IP port 8554 proto udp</code></pre>
+<p><strong>Linux alternate primary camera.</strong> If your primary GoPro supports Quik Custom RTMP and lacks a compatible wired API, connect it to the field SSID and publish to <code>rtmp://192.168.77.10:1935/live/gopro1</code>. Select the Linux wireless provisioning command in section 2. The OBS source keeps its existing name, <code>Feed - GoPro USB</code>, so scene layouts and filters still work. This makes four wireless publishers. Budget Wi-Fi capacity for the fourth feed and monitor all four keys. <a href="https://community.gopro.com/s/article/How-To-Live-Stream-From-Your-GoPro?language=en_US">GoPro Quik RTMP</a></p>
+<h3 id="macos-installation">macOS installation</h3>
+<p>Use macOS 13 or newer on Intel or Apple Silicon with a compatible OBS release. Get the OBS installer for the machine's CPU, move OBS to <strong>Applications</strong>, and install the official <strong>GoPro Webcam</strong> app. GoPro lists HERO8 Black and later compatible Black cameras and excludes HERO11 Mini and MAX for its Mac utility. In <strong>System Settings → Privacy &amp; Security</strong>, allow OBS to use Camera and Microphone. Launch GoPro Webcam, grant its requested camera-extension approval in System Settings if prompted, then restart OBS so it can enumerate the virtual camera. In <strong>System Information → USB</strong>, verify that both wired cameras are present. <a href="https://obsproject.com/download">OBS Mac downloads</a> · <a href="https://apps.apple.com/us/app/gopro-webcam/id6477835262?mt=12">GoPro Webcam for Mac</a></p>
+<p>Install Python 3.11 or later and FFmpeg 6+ with ffprobe before traveling. On a Mac using a supported Homebrew installation, run the first block. A python.org universal2 interpreter and a MacPorts FFmpeg install are alternatives, particularly on Intel. Use your installed Python's executable for the venv. <a href="https://www.python.org/downloads/macos/">Python macOS downloads</a> · <a href="https://docs.brew.sh/Support-Tiers">Homebrew support</a> · <a href="https://ports.macports.org/port/ffmpeg/">MacPorts FFmpeg</a></p>
+<pre class="bash"><code>brew install python@3.13 ffmpeg</code></pre>
+<pre class="bash"><code>cd ~/Downloads
+tar -xzf Field_Stream_macOS_Kit.tar.gz -C ~
+cd ~/FieldStream
+python3.13 -m venv .venv
+.venv/bin/python -m pip install --no-index --find-links wheels -r requirements.txt
+ffmpeg -version
+./start-fieldstream.sh --setup</code></pre>
+<p>The archive includes both Intel and Apple Silicon MediaMTX binaries. Run Terminal natively on Apple Silicon to select the arm64 receiver. If macOS asks which app may accept incoming connections, allow the kit's <strong>mediamtx</strong> executable on the trusted field network. If Gatekeeper requires approval, inspect <code>BINARY-SHA256.txt</code>, verify the matching file using <code>shasum -a 256</code>, and use the macOS per-app approval flow. The bundled executable is upstream MediaMTX. The camera subnet and local-read restrictions reside in <code>server/mediamtx.yml</code>. Keep port 1935 on the field LAN.</p>
+<p><strong>Receiver checkpoint for Linux and Mac.</strong> From the hub, list camera paths below. As publishers come online, <code>online</code> becomes true and <code>inboundBytes</code> increases. Four path names are configured, including the optional Linux primary fallback. From another LAN client, <code>nc -vz 192.168.77.10 1935</code> checks camera-network reachability. The local API is on 127.0.0.1:9997.</p>
+<pre class="bash"><code>curl -fsS http://127.0.0.1:9997/v3/paths/list | .venv/bin/python -m json.tool</code></pre>
+<h3 id="bring-the-wireless-cameras-online-individually">Bring the wireless cameras online individually</h3>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Camera</th>
+<th>Stream key</th>
+<th>Full URL to paste in the camera app</th>
+<th>Read URL already configured in OBS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DJI Osmo 360</td>
+<td><code>dji</code></td>
+<td><code>rtmp://192.168.77.10:1935/live/dji</code></td>
+<td><code>rtmp://127.0.0.1:1935/live/dji</code></td>
+</tr>
+<tr class="even">
+<td>Wireless GoPro 2</td>
+<td><code>gopro2</code></td>
+<td><code>rtmp://192.168.77.10:1935/live/gopro2</code></td>
+<td><code>rtmp://127.0.0.1:1935/live/gopro2</code></td>
+</tr>
+<tr class="odd">
+<td>Wireless GoPro 3</td>
+<td><code>gopro3</code></td>
+<td><code>rtmp://192.168.77.10:1935/live/gopro3</code></td>
+<td><code>rtmp://127.0.0.1:1935/live/gopro3</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>If an app presents separate server and key fields, enter <code>rtmp://192.168.77.10:1935/live</code> as the server and the key from column two once. On a camera or phone, <code>127.0.0.1</code> addresses that device itself.</p>
+<p><strong>1I · DJI Mimo.</strong> Update Osmo 360 and Mimo. DJI lists single-lens livestreaming in its December 2025 firmware release (camera v01.03.08.60, Mimo v2.6.4). Connect Mimo to the camera and enter the shooting preview. Choose <strong>Single Lens → Livestream</strong>, choose the <strong>RTMP</strong> platform, then <strong>Start Livestream Settings</strong>. Select <code>FieldCams</code>, supply its password and the DJI URL above, choose a supported bitrate if offered and tap <strong>Start Livestream</strong>. Start near 6 Mb/s if available. Confirm the intended lens faces the subject and the receiver reports <code>live/dji</code> online. The published picture is a flat 16:9 angle. <a href="https://www.dji.com/360/faq">Osmo 360 mode and controls</a> · <a href="https://support.dji.com/help/content?customId=en-us03400006728&amp;lang=en&amp;re=US&amp;spaceId=34">Mimo RTMP guide</a> · <a href="https://dl.djicdn.com/downloads/Osmo_360/20251215/DJI_Osmo_360_Release_Notes_en.pdf">Firmware release notes</a></p>
+<p><strong>1J · GoPro Quik.</strong> Turn on wireless connections. Pair GoPro 2, open its camera tile in Quik, tap <strong>Control Your GoPro</strong>, select <strong>Live → Set Up Live</strong> and choose <strong>RTMP</strong> in the platform list. Select the <code>FieldCams</code> network and paste the full GoPro 2 URL. Select <strong>1080p</strong> on compatible models with a strong link, or start at <strong>720p</strong> in difficult RF conditions. Tap <strong>Set Up Live Stream → Go Live</strong>, or press the shutter when prompted. Confirm its unique path is online. Repeat for GoPro 3 with <code>gopro3</code>. Verify both continue sending when you change cameras in Quik or lock the phone. If one stops, keep a dedicated control phone/tablet per affected camera. Do the same rehearsal with Mimo. <a href="https://gopro.com/en/us/news/how-to-live-stream-on-gopro">GoPro RTMP walkthrough</a> · <a href="https://community.gopro.com/s/article/How-To-Live-Stream-From-Your-GoPro?language=en_US">GoPro model support</a></p>
+<p><strong>Checkpoint 1.</strong> The wired cameras each preview individually. The receiver shows all three required wireless paths online (four when the primary GoPro also uses Wi-Fi) with increasing inbound bytes. From a second Windows device on the camera SSID, <code>Test-NetConnection 192.168.77.10 -Port 1935</code> succeeds.</p>
+<h2 id="step2">2. Build and synchronize the OBS shots</h2>
+<p><strong>2A · Create the OBS workspace.</strong> In OBS, use <strong>Profile → New</strong> and <strong>Scene Collection → New</strong>. Name each exactly <code>Field Stream</code>. Leave streaming and recording stopped. In <strong>Tools → WebSocket Server Settings</strong>, enable the server and authentication, keep port <strong>4455</strong>, and copy the password from <strong>Show Connect Info</strong>. The local scripts prompt for it without echo. If OBS uses another port, set <code>$env:OBS_WS_PORT</code> to that port in the same PowerShell window. Keep the Windows firewall closed to remote clients on the WebSocket port. From the kit folder run the command for your host. Windows uses the PowerShell command immediately below. On Mac or Linux a different WebSocket port can be passed using <code>--port PORT</code> or <code>export OBS_WS_PORT=PORT</code>. <a href="https://obsproject.com/kb/remote-control-guide">OBS WebSocket setup</a></p>
+<pre class="powershell"><code>.\.venv\Scripts\python.exe .\Configure-Scenes.py</code></pre>
+<p><strong>macOS</strong> uses the native camera extension.</p>
+<pre class="bash"><code>.venv/bin/python Configure-Scenes.py</code></pre>
+<p><strong>Linux wired GoPro</strong> uses the host address printed by the USB helper. On a later run use the same commands again if DHCP assigns a new USB address.</p>
+<pre class="bash"><code>usb_host=$(.venv/bin/python gopro_usb.py address) &amp;&amp; .venv/bin/python Configure-Scenes.py --gopro-usb-bind "$usb_host"</code></pre>
+<p><strong>Linux wireless primary</strong> uses the optional <code>live/gopro1</code> path.</p>
+<pre class="bash"><code>.venv/bin/python Configure-Scenes.py --gopro-wireless</code></pre>
+<p>On all three platforms, setup checks the selected profile/collection, builds the scenes, sets canvas and output to <strong>1920×1080 at 30 fps</strong>, and selects <strong>Combined Multiview</strong> on the first run. A repeat run reapplies kit geometry and mutes the five camera inputs. It preserves selected devices and source filters. Provision offline before starting the monitor.</p>
+<p><strong>2B · Bind the USB devices.</strong> On Windows, open <code>Cam - Sony</code>, right-click <code>Feed - Sony</code> → <strong>Properties</strong>, and choose the Sony device enumerated by Windows. Use <strong>Resolution/FPS Type → Custom</strong>, <strong>1280×720</strong>, <strong>30 fps</strong> (or the exact driver-reported 29.97 where applicable), <strong>Video Format → MJPEG</strong>. If those controls are unavailable, try <strong>Device Default</strong> and verify the actual format in the OBS log. In <code>Cam - GoPro USB</code>, set <code>Feed - GoPro USB</code> to the GoPro Webcam virtual device (often <strong>GoPro Camera</strong>). Start with <strong>Device Default</strong>, then choose 1920×1080/30 if the driver offers it. Keep <strong>Deactivate when not showing</strong> off for both. Close other applications using the devices. <a href="https://obsproject.com/kb/video-capture-sources">OBS capture device settings</a></p>
+<p>On Mac, open the two <code>Feed - …</code> properties and choose the Sony and GoPro Webcam entries in the macOS Video Capture Device selector. Match the Sony to 720p30 and GoPro to 1080p30 or the closest advertised preset. On Linux, select the Sony capture node in <code>Feed - Sony</code> and choose MJPEG, 1280×720, 30 fps where reported. The primary GoPro is a Media Source with the UDP or RTMP address already configured. A Linux direct-USB feed has no GoPro Webcam device dropdown. Capture sound from one independent system input on every platform. <a href="https://obsproject.com/kb/video-capture-sources">OBS capture sources</a></p>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Media Source setting</th>
+<th>Value applied to each wireless input</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Local File / Input</td>
+<td>Off · exact loopback read URL from section 1</td>
+</tr>
+<tr class="even">
+<td>Input Format / FFmpeg Options</td>
+<td>Both blank · protocol and media format autodetected</td>
+</tr>
+<tr class="odd">
+<td>Network buffering / reconnect</td>
+<td>1 MB configured · 2 seconds between reconnect attempts. The network buffering option's effect depends on playback backend and protocol. It is not the end-to-end latency.</td>
+</tr>
+<tr class="even">
+<td>Playback</td>
+<td>Restart when active off · Close file when inactive off · show no video on playback end on</td>
+</tr>
+<tr class="odd">
+<td>Decode / loop / sound</td>
+<td>Hardware decode initially off · loop off · camera audio muted</td>
+</tr>
+<tr class="even">
+<td>Tuning</td>
+<td>If the feed stutters, test 2 MB, then a lower camera bitrate or 720p on compatible GoPros. Change one variable, record and remeasure latency. OBS's FFmpeg options and VLC's caching switches use different syntax.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The source type is OBS <strong>Media Source</strong>. It reads RTMP directly from the local receiver. The same feed stays available across scene changes. <a href="https://github.com/obsproject/obs-studio/blob/master/plugins/obs-ffmpeg/obs-ffmpeg-source.c">OBS Media Source implementation</a></p>
+<p><strong>2C · Pick one master microphone.</strong> In <strong>Settings → Audio</strong>, set sample rate to <strong>48 kHz</strong> and select exactly one <strong>Mic/Auxiliary Audio</strong> input. A separate field mic works, or choose the Sony's separate USB audio endpoint if you want its microphone. Disable unused global Desktop Audio and other Mic/Aux slots, keep each camera feed muted, and leave monitoring off unless using headphones for a deliberate monitoring setup. Verify a spoken word reaches the program meter once on a solo shot and on the grid. The independent global input makes its sync offset unambiguous.</p>
+<h3 id="scene-collection">Scene collection</h3>
+<p>Both composite scenes use the same five nested camera scenes. Each <code>Cam - …</code> contains its own full-frame <code>Feed - …</code> and opaque <code>Slate - …</code>. Put image corrections and video delay directly on the <strong>Feed</strong>. Select the corresponding <code>Cam - …</code> for a solo. Visibility, slate and calibration then follow the camera into every shot. OBS's separate <strong>View → Multiview</strong> window is optional for the operator. <strong>Combined Multiview</strong> is an actual program scene and can be recorded or broadcast.</p>
+<div class="vizrow"><figure><svg aria-label="Combined Multiview layout" class="sceneart" role="img" viewbox="0 0 480 270"><rect fill="#16221d" height="270" rx="0" width="480" x="0" y="0"></rect><rect fill="#396351" height="133" rx="2" width="238" x="1" y="23.5"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="120.0" y="95.0">Sony</text><rect fill="#536c7b" height="133" rx="2" width="238" x="241" y="23.5"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="360.0" y="95.0">GoPro USB</text><rect fill="#886d46" height="88" rx="2" width="158" x="1" y="158.5"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="80.0" y="207.5">GoPro 2</text><rect fill="#556448" height="88" rx="2" width="158" x="161" y="158.5"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="240.0" y="207.5">GoPro 3</text><rect fill="#78655a" height="88" rx="2" width="158" x="321" y="158.5"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="400.0" y="207.5">DJI</text></svg><figcaption>Combined Multiview</figcaption></figure><figure><svg aria-label="Field PiP layout" class="sceneart" role="img" viewbox="0 0 480 270"><rect fill="#16221d" height="270" rx="0" width="480" x="0" y="0"></rect><rect fill="#396351" height="268" rx="2" width="478" x="1" y="1"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="580" text-anchor="middle" x="240.0" y="140.0">Sony</text><rect fill="#536c7b" height="58.75" rx="2" width="106" x="7" y="204.25"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="middle" x="60.0" y="238.625">GoPro USB</text><rect fill="#886d46" height="58.75" rx="2" width="106" x="127" y="204.25"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="middle" x="180.0" y="238.625">GoPro 2</text><rect fill="#556448" height="58.75" rx="2" width="106" x="247" y="204.25"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="middle" x="300.0" y="238.625">GoPro 3</text><rect fill="#78655a" height="58.75" rx="2" width="106" x="367" y="204.25"></rect><text fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="580" text-anchor="middle" x="420.0" y="238.625">DJI</text></svg><figcaption>Field PiP</figcaption></figure></div>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Nested scene</th>
+<th>Combined Multiview · x, y, width × height</th>
+<th>Field PiP · x, y, width × height</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cam - Sony</td>
+<td>0, 90 · 960×540</td>
+<td>0, 0 · 1920×1080 base</td>
+</tr>
+<tr class="even">
+<td>Cam - GoPro USB</td>
+<td>960, 90 · 960×540</td>
+<td>24, 813 · 432×243</td>
+</tr>
+<tr class="odd">
+<td>Cam - GoPro 2</td>
+<td>0, 630 · 640×360</td>
+<td>504, 813 · 432×243</td>
+</tr>
+<tr class="even">
+<td>Cam - GoPro 3</td>
+<td>640, 630 · 640×360</td>
+<td>984, 813 · 432×243</td>
+</tr>
+<tr class="odd">
+<td>Cam - DJI</td>
+<td>1280, 630 · 640×360</td>
+<td>1464, 813 · 432×243</td>
+</tr>
+</tbody>
+</table></div>
+<p>All geometry uses top-left anchors and fit-inside bounds. The grid centers two larger views above three smaller ones, with 90 px of space above and below. The PiP base gives the Sony the full canvas and places all four other angles across the lower edge. If you bring fewer cameras, remove that camera's <strong>nested item</strong> from each composite and enlarge the others with <strong>Transform → Edit Transform</strong>. Run the monitor with the remaining wireless keys. Rerunning scene setup restores the kit layout.</p>
+<p>For another wireless GoPro beyond this five-camera build, assign a fresh key such as <code>gopro4</code>. Add <code>live/gopro4: {}</code> under the YAML paths, the display name and key under <code>CAMERAS</code> in both Python scripts (note the opposite dictionary directions), a tile in both layout tables in <code>Configure-Scenes.py</code>, and the new key to the launchers’ camera choices/defaults in <code>Start-FieldStream.ps1</code> and <code>launch_posix.py</code>. Include the new key in the monitor defaults if desired. Restart the local receiver between sessions, rerun scene setup offline, and verify the new path, slate and timing before use.</p>
+<h3 id="measure-the-offsets-on-your-rig">Measure the offsets on your rig</h3>
+<p><strong>2D · Record the same event in every channel.</strong> Aim every camera at one clapper or a pair of hands. Put the master mic beside it. Set existing video delays and the master sync offset to zero. Record the composite locally after all streams have settled for a minute. Make five sharp claps roughly 10 seconds apart. Open the recording in a frame-accurate editor such as Kdenlive, show the audio waveform and step through each tile to the first frame of hand contact. Note each tile's frame index and the mic transient time on the <strong>same recording timeline</strong>. A clap avoids separate screen/speaker latency on a phone. Use the recorded program to judge sync.</p>
+<p><strong>2E · Calculate video and audio delays.</strong> At 30 fps, a frame is 33.333 ms. For each clap convert each camera's frame index to milliseconds: <code>t = frame × 1000 / fps</code>. Use the same zero reference for the waveform. To combine trials, subtract that clap's Sony event time from every camera and the audio. Take the median for each channel across the five trials. With these six medians, the target <code>T</code> is the latest channel, including audio. A video needs <code>round(T − its median)</code> ms. The independent master mic needs a positive <strong>Sync Offset</strong> of <code>round(T − its median)</code> ms. This calculation also works from a single clap using its absolute event times. Differences between trials show jitter.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr class="header">
+<th>Illustrative single clap at 30 fps</th>
+<th style="text-align: right;">First arrival</th>
+<th style="text-align: right;">Added delay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sony</td>
+<td style="text-align: right;">frame 3 · 100 ms</td>
+<td style="text-align: right;">2300 ms</td>
+</tr>
+<tr class="even">
+<td>Wired GoPro</td>
+<td style="text-align: right;">frame 6 · 200 ms</td>
+<td style="text-align: right;">2200 ms</td>
+</tr>
+<tr class="odd">
+<td>GoPro 2</td>
+<td style="text-align: right;">frame 54 · 1800 ms</td>
+<td style="text-align: right;">600 ms</td>
+</tr>
+<tr class="even">
+<td>GoPro 3</td>
+<td style="text-align: right;">frame 60 · 2000 ms</td>
+<td style="text-align: right;">400 ms</td>
+</tr>
+<tr class="odd">
+<td>DJI</td>
+<td style="text-align: right;">frame 72 · 2400 ms</td>
+<td style="text-align: right;">0 ms</td>
+</tr>
+<tr class="even">
+<td>Master mic</td>
+<td style="text-align: right;">waveform onset 50 ms</td>
+<td style="text-align: right;">+2350 ms</td>
+</tr>
+</tbody>
+</table></div>
+<p>The 2400 ms target and these offsets illustrate the calculation. Your input measurements determine your settings. The offline calculator takes either one clap's timestamps or the six medians from several claps.</p>
+<section class="calculator" id="sync-work"><h4>Offline sync calculator</h4><div class="bar controls"><label for="format">Arrival units</label><select id="format"><option value="frames">30 fps frames + mic in ms</option><option value="ms">All in ms, including relative medians</option></select><button id="sample" type="button">Load example</button><button id="clear" type="button">Clear</button></div><div class="tablewrap"><table><thead><tr><th>Channel</th><th>Measured arrival</th><th>Delay to apply</th></tr></thead><tbody><tr><td><label for="time-sony">Sony</label></td><td><input aria-describedby="unit-sony" data-key="sony" id="time-sony" step="any" type="number"/> <span id="unit-sony"></span></td><td><output id="result-sony">—</output></td></tr><tr><td><label for="time-wired">GoPro USB</label></td><td><input aria-describedby="unit-wired" data-key="wired" id="time-wired" step="any" type="number"/> <span id="unit-wired"></span></td><td><output id="result-wired">—</output></td></tr><tr><td><label for="time-g2">GoPro 2</label></td><td><input aria-describedby="unit-g2" data-key="g2" id="time-g2" step="any" type="number"/> <span id="unit-g2"></span></td><td><output id="result-g2">—</output></td></tr><tr><td><label for="time-g3">GoPro 3</label></td><td><input aria-describedby="unit-g3" data-key="g3" id="time-g3" step="any" type="number"/> <span id="unit-g3"></span></td><td><output id="result-g3">—</output></td></tr><tr><td><label for="time-dji">DJI</label></td><td><input aria-describedby="unit-dji" data-key="dji" id="time-dji" step="any" type="number"/> <span id="unit-dji"></span></td><td><output id="result-dji">—</output></td></tr><tr><td><label for="time-mic">Master mic</label></td><td><input aria-describedby="unit-mic" data-key="mic" id="time-mic" step="any" type="number"/> <span id="unit-mic"></span></td><td><output id="result-mic">—</output></td></tr></tbody></table></div><p aria-live="polite" class="hint" id="sync-status"></p><noscript>Use the formula and worked example above when JavaScript is disabled.</noscript></section>
+<p><strong>2F · Apply and verify.</strong> Right-click each <code>Feed - …</code> → <strong>Filters → Audio/Video Filters → Video Delay (Async)</strong> and enter its calculated video delay. This native filter supports up to 20,000 ms on compatible asynchronous sources. If a source lacks it, use <strong>Effect Filters → Render Delay</strong>. Each instance accepts up to 500 ms. For the example Sony delay, stack <strong>500 + 500 + 500 + 500 + 300 ms</strong>. Apply one delay method per feed. Long delays buffer frames in memory, especially GPU memory for stacked Render Delays. Watch OBS Stats and host RAM/VRAM during the soak. On the master mic, open <strong>Advanced Audio Properties → Sync Offset (ms)</strong> and enter the calculated positive number. <a href="https://github.com/obsproject/obs-studio/blob/master/plugins/obs-filters/async-delay-filter.c">OBS Async Delay implementation</a> · <a href="https://github.com/obsproject/obs-studio/blob/master/plugins/obs-filters/gpu-delay.c">OBS Render Delay implementation</a> · <a href="https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md">OBS WebSocket audio settings</a></p>
+<p>Repeat the recording with delays enabled. Aim for all images and the audio peak within <strong>one output frame</strong>. For residual early video/audio, increase that channel's delay by the measured error. For a late channel, reduce its delay where possible. If a late channel already has zero delay, shift the other channels to the new latest target. Check again after 20 minutes, at the expected end of the session and after reconnecting a camera. A constant offset corrects a fixed timing difference. A growing residual is clock drift. For example, 100 ms of further separation over 20 minutes is about 83 ppm. Confirm actual capture rates and 48 kHz audio, check packet loss/OBS overload and retest. Wireless buffering and independent camera clocks can shift mid-show.</p>
+<p><strong>Checkpoint 2.</strong> Five recognizable, moving pictures appear in the grid. All seven scenes carry the same single mic. A recorded clap meets your chosen tolerance on both the grid and PiP.</p>
+<h2 id="step3">3. Start, monitor and recover</h2>
+<p><strong>3A · Start a production session.</strong> On Windows, open PowerShell in the kit folder.</p>
+<pre class="powershell"><code>.\Start-FieldStream.ps1</code></pre>
+<p>On Linux and macOS open Terminal in the extracted kit and run:</p>
+<pre class="bash"><code>./start-fieldstream.sh</code></pre>
+<p>On Linux, after power cycling a wired GoPro, issue <code>.venv/bin/python gopro_usb.py start</code> before normal launch. If you configured a wireless primary, use <code>./start-fieldstream.sh --cameras gopro1 gopro2 gopro3 dji</code>. For POSIX launcher options see <code>./start-fieldstream.sh --help</code>. Examples include <code>--pixel-freeze 30</code>, <code>--stale 20</code>, <code>--ffmpeg /full/path/to/ffmpeg</code>, and <code>--obs /full/path/to/obs</code>. The POSIX launcher records the receiver PID under <code>run/server.pid</code>, checks that the receiver owns both sockets, and writes <code>run/mediamtx.log</code> and <code>run/obs-launch.log</code>.</p>
+<p>The launcher checks the owner of TCP <strong>1935</strong>, starts or reuses this kit's MediaMTX, and launches OBS with the <strong>Field Stream</strong> profile/collection and <strong>Combined Multiview</strong> if OBS is closed. If OBS is already open, select that profile and collection. Enter the OBS WebSocket password when prompted. Keep the console open. It monitors all three wireless feeds and reconnects to OBS after a restart. Start <strong>Recording</strong> or <strong>Streaming</strong> yourself in OBS after the preflight. To finish, stop the output in OBS, press <strong>Ctrl+C</strong> in the monitor window, close OBS and then close the MediaMTX console on Windows. On Linux/macOS inspect the command with <code>ps -p "$(cat run/server.pid)" -o command=</code>. If it is the receiver from this kit and all outputs/readers are stopped, <code>kill -TERM "$(cat run/server.pid)"</code> stops that receiver. On wired Linux also run <code>.venv/bin/python gopro_usb.py stop</code>. <a href="https://obsproject.com/kb/launch-parameters">OBS launch parameters</a></p>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>If you need…</th>
+<th>PowerShell command</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Two wireless cameras only</td>
+<td><code>.\Start-FieldStream.ps1 -Cameras gopro2,dji</code></td>
+</tr>
+<tr class="even">
+<td>Detect a camera that encodes one identical picture for 30 s</td>
+<td><code>.\Start-FieldStream.ps1 -PixelFreezeSeconds 30</code></td>
+</tr>
+<tr class="odd">
+<td>A longer allowance for unusually sparse keyframes</td>
+<td><code>.\Start-FieldStream.ps1 -StaleSeconds 20</code></td>
+</tr>
+<tr class="even">
+<td>Nonstandard OBS or FFmpeg location</td>
+<td><code>.\Start-FieldStream.ps1 -ObsPath 'D:\Apps\obs-studio\bin\64bit\obs64.exe' -FfmpegPath 'D:\Tools\ffmpeg.exe'</code></td>
+</tr>
+<tr class="odd">
+<td>Inspect switches without starting a session</td>
+<td><code>Get-Help .\Start-FieldStream.ps1</code> and <code>.\.venv\Scripts\python.exe .\Monitor-Feeds.py --help</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>3B · How failover behaves.</strong> The monitor polls the local receiver, reads a low-resolution decimated sample of each wireless feed using FFmpeg, and asks OBS about each Media Source. It checks publisher loss, missing advancing video keyframes and OBS playback. It also compares small OBS source snapshots against the independently changing upstream picture to catch a frozen OBS render. On failure it places the camera's opaque, labeled slate over the feed in that camera's nested scene. Other cameras and the master mic continue. The feed stays enabled underneath, so OBS can recover while covered. When the publisher, decoder and OBS recover, the monitor restores the camera view in every scene. A sustained unhealthy state is debounced for ~3 seconds, and a healthy state for ~2 seconds after qualifying video. Missing keyframes have a separate default ~12-second threshold. Rejoins also wait for new decodable keyframes. Expect a brief detection interval. Check the monitor console for the transition reason.</p>
+<p>The default accepts genuine static scenes if timestamps advance. If a camera encodes the exact same image with fresh timestamps, the monitor cannot distinguish that from a perfectly still scene using timestamps alone. For a moving shot, <code>-PixelFreezeSeconds 30</code> enables the additional repeated-image check. A quiet, locked-off stand camera can legitimately trigger this mode. A manual fallback is available in the nested camera scene: stop the monitor, keep the slate enabled and move the slate above the feed. To resume, start the monitor again. Camera reconnect and app-side <strong>Go Live</strong> may still require the operator if the camera ends its publish session. Automation covers the OBS output and local decoder recovery.</p>
+<p><strong>3C · Rehearse the handoff.</strong> Record locally on the grid. Stop publishing GoPro 2 in Quik and leave the other cameras running. Its tile should switch to its labeled standby slate. Switch to <code>Cam - GoPro 2</code> to confirm the same slate fills the frame. Restart that GoPro on its original URL. Verify moving video returns unaided in the grid and solo, the other feeds continued throughout and audio stayed uninterrupted. Repeat with the DJI. Then make a fresh calibration clap. For a transport stall, interrupt a test camera's link without tapping End Stream and observe the timeout and recovery. For a visual-freeze trial, use a synthetic constant-color source with optional repeated-image detection enabled.</p>
+<h3 id="bench-publisher-and-troubleshooting">Bench publisher and troubleshooting</h3>
+<p>With the chosen camera offline and the receiver running, this command runs in PowerShell or Terminal and publishes a moving test pattern on its path for 60 seconds. Its closing automatically exercises feed loss. If a camera already owns the path, MediaMTX rejects the test publisher.</p>
+<pre class="powershell"><code>ffmpeg -re -f lavfi -i "testsrc2=size=1280x720:rate=30" -t 60 -an -c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -g 30 -f flv rtmp://127.0.0.1:1935/live/gopro2</code></pre>
+<p>A second terminal can verify the stream independently of OBS while the path is online.</p>
+<pre class="powershell"><code>ffprobe -v error -show_entries stream=codec_name,width,height,avg_frame_rate -of default=nw=1 rtmp://127.0.0.1:1935/live/gopro2</code></pre>
+<div class="tablewrap"><table>
+
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>First isolation test</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sony lists only 720p, or no Sony picture</td>
+<td>Check camera says <em>USB Streaming: Output</em>, then try Device Default.</td>
+<td>720p is its native USB output. For a missing picture, verify streaming mode, port/cable, Windows camera privacy permission for desktop apps and exclusive access.</td>
+</tr>
+<tr class="even">
+<td>GoPro appears as storage or disappears</td>
+<td>Check power, GoPro Webcam tray preview and model-specific USB mode.</td>
+<td>Select GoPro Connect where present, restart the utility, close other webcam apps and try a direct data port. On Linux, run <code>gopro_usb.py list</code> and <code>status</code>, check DHCP, the direct USB route and the host firewall. On Mac, check camera-extension approval and OBS Camera permission.</td>
+</tr>
+<tr class="odd">
+<td>Camera says Live but API shows offline</td>
+<td>On another device on the same camera SSID test PC TCP 1935.</td>
+<td>Check private host IP, SSID reachability, client isolation, firewall profile, route and path spelling. Re-enter the full URL and confirm WAN reachability during app setup.</td>
+</tr>
+<tr class="even">
+<td>Second camera knocks out or cannot start a feed</td>
+<td>Compare both publish URLs and API path names.</td>
+<td>Give each camera a unique key. End the previous publisher on that key before retrying.</td>
+</tr>
+<tr class="odd">
+<td>API online, OBS blank or old frame</td>
+<td>Read the exact loopback URL with ffprobe or FFplay, then inspect Media Source properties and monitor status.</td>
+<td>Confirm <code>ffmpeg_source</code> settings and slate order. Verify advancing video from the publisher and inspect OBS's current log. Restart the affected camera stream if upstream is stuck.</td>
+</tr>
+<tr class="even">
+<td>Slates cycle in a still shot</td>
+<td>Check monitor reason and keyframe cadence.</td>
+<td>Turn off optional pixel-freeze detection for static cameras. Increase the stale threshold only if normal keyframes are genuinely sparse.</td>
+</tr>
+<tr class="odd">
+<td>Clean wired feeds, jerky wireless</td>
+<td>Stand at the camera location and check signal, channel utilization and all paths' inbound byte deltas.</td>
+<td>Reposition the AP, try a less busy channel or 20 MHz width, lower wireless GoPro resolution and confirm Ethernet backhaul.</td>
+</tr>
+<tr class="even">
+<td>All feeds smooth, recording/output drops</td>
+<td>Open <strong>View → Stats</strong>. Separate rendering lag, encoding lag and network dropped frames.</td>
+<td>Reduce processing, use an H.264 hardware output encoder your host supports, or reduce outbound bitrate according to the affected counter. Inspect camera-side stutter in a recording too.</td>
+</tr>
+<tr class="odd">
+<td>Long run loses a wired device</td>
+<td>Watch battery %, USB resets and temperature while all cameras run.</td>
+<td>Move it to a separately powered data port, shorten cable, shade the camera or test supported external power. A higher cable data rating alone cannot fix a power shortfall.</td>
+</tr>
+<tr class="even">
+<td>Audio echoes or goes silent on solo</td>
+<td>Watch the master meter during a scene change.</td>
+<td>Use the one global Mic/Aux, mute all camera inputs and unused global sources, then verify the recorded output track in Advanced Audio Properties.</td>
+</tr>
+<tr class="odd">
+<td>WebSocket monitor pauses</td>
+<td>Compare exact current profile, collection and source names to section 2.</td>
+<td>Enable WebSocket authentication, use the configured port/password, then rerun the monitor. If any kit source was renamed, restore its expected name.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="pre-stream-checklist">Pre-stream checklist</h3>
+<ul class="task-list">
+<li><label><input type="checkbox"/>One dedicated field SSID. PC Ethernet at <code>192.168.77.10</code>. Trusted camera devices can reach port 1935. WAN is available for app setup and outbound streaming where needed.</label></li>
+<li><label><input type="checkbox"/>Two wired cameras show the intended angles. Each wireless key has its own online publisher and increasing bytes. Move an object in each view to verify source identity.</label></li>
+<li><label><input type="checkbox"/>Full-load run lasts at least an hour, or the planned broadcast duration if longer. Check battery trends, heat, frame pacing, router link quality and the host computer’s sleep settings.</label></li>
+<li><label><input type="checkbox"/>Set OBS <strong>Settings → Stream</strong> to the actual destination and supply its credentials. Select an encoder, bitrate and keyframe interval accepted by that service. Measure WAN upload at the field site. Choose local recording path/free space and play back a short MKV recording.</label></li>
+<li><label><input type="checkbox"/>Record a clap, verify timing after warm-up, save measured offsets and note reconnect behavior. Verify one master mic on all shots.</label></li>
+<li><label><input type="checkbox"/>Confirm console reports live for healthy feeds, fail one camera on purpose, restore it and check unrelated pictures/audio continued.</label></li>
+<li><label><input type="checkbox"/>Select the opening shot in <strong>Program</strong>, confirm the encoder is ready, and only then press <strong>Start Streaming</strong>.</label></li>
+</ul>
+<p><strong>Verification scope.</strong> A native Debian 13 x86-64 OBS Studio 30.2.3 process built all seven scenes, registered the Sony V4L2 input, and rendered moving simulated feeds in both the grid and PiP. The tests exercised RTMP ingest, H.264/MPEG-TS over a UDP loopback standing in for the GoPro USB network, and automatic slate substitution and recovery on an actual OBS scene. Both native x86-64 and emulated Linux ARM64 MediaMTX passed concurrent three-stream publish/read and reconnect tests. The GoPro USB helper passed device-selection, route, HTTP state and source-address tests using a camera simulator. Windows and macOS scene logic was checked against simulated native inputs. The Windows launcher was checked with mocked Windows processes. The Mac Intel and Apple Silicon receiver binaries matched upstream SHA-256 and their declared deployment targets. A physical Windows or Mac run, real camera enumeration, sustained field Wi-Fi, power, thermal behavior, and A/V timing await commissioning on your host. <a href="https://github.com/bluenviron/mediamtx/releases/tag/v1.21.4">MediaMTX v1.21.4 release</a></p>
+<h2 id="files">Configuration and script text</h2><p>The platform packages include these files ready to use. Expand a filename for its complete copyable contents.</p><details class="details"><summary>server/mediamtx.yml</summary><pre><code># MediaMTX v1.21.4. Cameras publish over the field LAN; OBS and probes read locally.
+logLevel: info
+logDestinations: [stdout]
+rtmp: true
+rtmpAddress: &quot;:1935&quot;
+rtmpEncryption: &quot;no&quot;
+rtsp: false
+hls: false
+webrtc: false
+srt: false
+moq: false
+playback: false
+metrics: false
+pprof: false
+api: true
+apiAddress: &quot;127.0.0.1:9997&quot;
+
+authMethod: internal
+authInternalUsers:
+  - user: any
+    ips: [&quot;192.168.77.0/24&quot;, &quot;127.0.0.1&quot;]
+    permissions:
+      - action: publish
+  - user: any
+    ips: [&quot;127.0.0.1&quot;]
+    permissions:
+      - action: read
+      - action: api
+
+pathDefaults:
+  source: publisher
+  overridePublisher: false
+paths:
+  # Optional primary camera on Linux when using Quik instead of USB networking.
+  live/gopro1: {}
+  live/dji: {}
+  live/gopro2: {}
+  live/gopro3: {}
+</code></pre></details><details class="details"><summary>requirements.txt</summary><pre><code>obsws-python==1.8.1 --hash=sha256:dbdba02b8641ac3f30bff16107c1bba11c6e5b6884ae85698038f0d593baaf6c
+websocket-client==1.9.0 --hash=sha256:af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef
+</code></pre></details><details class="details"><summary>Start-FieldStream.ps1</summary><pre><code># Windows PowerShell 5.1+; run in a PowerShell window.
+[CmdletBinding()]
+param(
+    [switch]$Setup,
+    [string]$ObsPath = &quot;$env:ProgramFiles\obs-studio\bin\64bit\obs64.exe&quot;,
+    [string]$PythonPath = &quot;&quot;,
+    [string]$FfmpegPath = &quot;ffmpeg&quot;,
+    [ValidateSet(&quot;gopro2&quot;, &quot;gopro3&quot;, &quot;dji&quot;)]
+    [string[]]$Cameras = @(&quot;gopro2&quot;, &quot;gopro3&quot;, &quot;dji&quot;),
+    [ValidateRange(4, 600)][int]$StaleSeconds = 12,
+    [ValidateRange(0, 3600)][int]$PixelFreezeSeconds = 0
+)
+$ErrorActionPreference = &quot;Stop&quot;
+
+function Resolve-Application([string]$Name) {
+    $command = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $command) { throw &quot;Cannot find $Name. Check the installation and supplied path.&quot; }
+    return $command.Source
+}
+
+function Get-RtmpListeners {
+    @(Get-NetTCPConnection -State Listen -LocalPort 1935 -ErrorAction SilentlyContinue)
+}
+
+$serverDir = Join-Path $PSScriptRoot &quot;server&quot;
+$serverExe = (Get-Item -LiteralPath (Join-Path $serverDir &quot;mediamtx.exe&quot;)).FullName
+$null = Get-Item -LiteralPath (Join-Path $serverDir &quot;mediamtx.yml&quot;)
+$ObsPath = Resolve-Application $ObsPath
+$monitor = Join-Path $PSScriptRoot &quot;Monitor-Feeds.py&quot;
+if (-not $Setup) {
+    $null = Get-Item -LiteralPath $monitor
+    if (-not $PythonPath) {
+        $venv = Join-Path $PSScriptRoot &quot;.venv\Scripts\python.exe&quot;
+        if (Test-Path -LiteralPath $venv) { $PythonPath = $venv } else { $PythonPath = &quot;python&quot; }
+    }
+    $PythonPath = Resolve-Application $PythonPath
+    $FfmpegPath = Resolve-Application $FfmpegPath
+    &amp; $PythonPath -c &quot;import obsws_python&quot;
+    if ($LASTEXITCODE -ne 0) { throw &quot;Install requirements.txt into the selected Python environment.&quot; }
+}
+
+$listeners = @(Get-RtmpListeners)
+if ($listeners.Count -eq 0) {
+    $server = Start-Process -FilePath $serverExe -ArgumentList &quot;mediamtx.yml&quot; -WorkingDirectory $serverDir -PassThru
+    $deadline = (Get-Date).AddSeconds(12)
+    do {
+        Start-Sleep -Milliseconds 300
+        if ($server.HasExited) { throw &quot;MediaMTX exited. From server\ run .\mediamtx.exe mediamtx.yml to see its error.&quot; }
+        $listeners = @(Get-RtmpListeners)
+    } while ($listeners.Count -eq 0 -and (Get-Date) -lt $deadline)
+}
+if ($listeners.Count -eq 0) { throw &quot;No TCP listener appeared on port 1935.&quot; }
+foreach ($listener in $listeners) {
+    $owner = Get-Process -Id $listener.OwningProcess
+    if ($owner.Path -ne $serverExe) { throw &quot;TCP 1935 is owned by another program (PID $($owner.Id)).&quot; }
+}
+Write-Host &quot;MediaMTX is listening on TCP 1935.&quot;
+
+$runningObs = Get-Process -Name &quot;obs64&quot; -ErrorAction SilentlyContinue
+if (-not $runningObs) {
+    $startArgs = @{ FilePath = $ObsPath; WorkingDirectory = (Split-Path -Parent $ObsPath) }
+    if (-not $Setup) {
+        $startArgs.ArgumentList = &#x27;--profile &quot;Field Stream&quot; --collection &quot;Field Stream&quot; --scene &quot;Combined Multiview&quot;&#x27;
+    }
+    Start-Process @startArgs
+} elseif (-not $Setup) {
+    Write-Host &quot;Reusing open OBS. The monitor waits for the Field Stream profile and collection.&quot;
+}
+if ($Setup) {
+    Write-Host &quot;In OBS create/select Field Stream under Profile and Scene Collection.&quot;
+    Write-Host &quot;Enable WebSocket authentication. Follow the guide to provision scenes.&quot;
+    return
+}
+
+$guard = New-Object System.Threading.Mutex($false, &quot;Local\FieldStreamMonitor&quot;)
+$held = $false
+try {
+    try { $held = $guard.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $held = $true }
+    if (-not $held) { throw &quot;Another Field Stream launcher is already monitoring.&quot; }
+    $monitorArgs = @($monitor, &quot;--ffmpeg&quot;, $FfmpegPath, &quot;--stale&quot;, &quot;$StaleSeconds&quot;,
+                     &quot;--pixel-freeze&quot;, &quot;$PixelFreezeSeconds&quot;, &quot;--cameras&quot;) + $Cameras
+    &amp; $PythonPath @monitorArgs
+    if ($LASTEXITCODE -ne 0) { throw &quot;Monitor exited with code $LASTEXITCODE.&quot; }
+} finally {
+    if ($held) { $guard.ReleaseMutex() }
+    $guard.Dispose()
+}
+</code></pre></details><details class="details"><summary>start-fieldstream.sh</summary><pre><code>#!/usr/bin/env bash
+# Run from Terminal in the extracted kit. Supports the system Bash on macOS.
+set -eu
+kit_dir=$(CDPATH= cd &quot;$(dirname &quot;$0&quot;)&quot; &amp;&amp; pwd)
+if [ -n &quot;${FIELD_PYTHON:-}&quot; ]; then
+    python_path=$FIELD_PYTHON
+elif [ -x &quot;$kit_dir/.venv/bin/python&quot; ]; then
+    python_path=&quot;$kit_dir/.venv/bin/python&quot;
+else
+    python_path=python3
+fi
+exec &quot;$python_path&quot; &quot;$kit_dir/launch_posix.py&quot; &quot;$@&quot;
+</code></pre></details><details class="details"><summary>launch_posix.py</summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Launch the local field camera receiver, OBS, and wireless monitor on macOS/Linux.&quot;&quot;&quot;
+import argparse
+import fcntl
+import importlib.util
+import json
+import os
+import platform
+import shutil
+import socket
+import subprocess
+import sys
+import time
+from contextlib import contextmanager, nullcontext, suppress
+from pathlib import Path
+from urllib.request import ProxyHandler, build_opener
+
+ROOT = Path(__file__).resolve().parent
+SERVER = ROOT / &quot;server&quot;
+RUN = ROOT / &quot;run&quot;
+CONFIG = SERVER / &quot;mediamtx.yml&quot;
+STATE = RUN / &quot;server.pid&quot;
+RTMP = 1935
+API = 9997
+HTTP = build_opener(ProxyHandler({}))
+
+
+@contextmanager
+def exclusive(name, wait=False):
+    with (RUN / name).open(&quot;a&quot;) as lock:
+        try:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | (0 if wait else fcntl.LOCK_NB))
+        except BlockingIOError:
+            raise RuntimeError(&quot;Another launcher is already monitoring this kit.&quot;) from None
+        yield  # Closing the fd also releases the lock after a crash.
+
+
+def executable(name):
+    found = shutil.which(str(name))
+    if not found:
+        raise RuntimeError(f&quot;Cannot run {name}. Verify installation, path and executable permission.&quot;)
+    return str(Path(found).resolve())
+
+
+def obs_command(system, override):
+    if override:
+        return [executable(override)]
+    if system == &quot;darwin&quot;:
+        for apps in (Path(&quot;/Applications&quot;), Path.home() / &quot;Applications&quot;):
+            obs = apps / &quot;OBS.app/Contents/MacOS/OBS&quot;
+            if obs.is_file():
+                return [executable(obs)]
+    if shutil.which(&quot;obs&quot;):
+        return [executable(&quot;obs&quot;)]
+    if system == &quot;linux&quot; and shutil.which(&quot;flatpak&quot;):
+        probe = subprocess.run([&quot;flatpak&quot;, &quot;info&quot;, &quot;com.obsproject.Studio&quot;],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if probe.returncode == 0:
+            return [executable(&quot;flatpak&quot;), &quot;run&quot;, &quot;com.obsproject.Studio&quot;]
+    raise RuntimeError(&quot;Install OBS Studio or supply --obs /full/path/to/the/OBS/executable.&quot;)
+
+
+def obs_is_open():
+    # ps comm is the executable name/path, independent of its arguments.
+    entries = subprocess.check_output([&quot;ps&quot;, &quot;-U&quot;, str(os.getuid()), &quot;-o&quot;, &quot;stat=&quot;, &quot;-o&quot;, &quot;comm=&quot;],
+                                      text=True)
+    for line in entries.splitlines():
+        state, name = line.strip().split(None, 1)
+        if not state.startswith(&quot;Z&quot;) and Path(name).name in {&quot;obs&quot;, &quot;OBS&quot;}:
+            return True
+    return False
+
+
+def port_open(port):
+    try:
+        with socket.create_connection((&quot;127.0.0.1&quot;, port), timeout=0.3):
+            return True
+    except OSError:
+        return False
+
+
+def api_ready():
+    try:
+        with HTTP.open(f&quot;http://127.0.0.1:{API}/v3/paths/list?itemsPerPage=1&quot;, timeout=0.6) as r:
+            return isinstance(json.load(r)[&quot;items&quot;], list)
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+
+
+def is_kit_server(pid, binary, system):
+    &quot;&quot;&quot;A stale PID or unrelated RTMP server must never be adopted as this kit.&quot;&quot;&quot;
+    if pid &lt;= 1:
+        return False
+    if system == &quot;linux&quot;:
+        try:
+            cmd = Path(f&quot;/proc/{pid}/cmdline&quot;).read_bytes().split(b&quot;\0&quot;)
+            return cmd[:2] == [os.fsencode(binary), os.fsencode(CONFIG)]
+        except OSError:
+            return False
+    result = subprocess.run([&quot;ps&quot;, &quot;-ww&quot;, &quot;-p&quot;, str(pid), &quot;-o&quot;, &quot;command=&quot;],
+                            capture_output=True, text=True)
+    return result.returncode == 0 and result.stdout.strip() == f&quot;{binary} {CONFIG}&quot;
+
+
+def owns_listeners(pid, system):
+    if system == &quot;darwin&quot;:
+        # A stock macOS installation provides /usr/sbin/lsof to the user that
+        # launched this process. Scope each query to both its PID and one port.
+        return all(subprocess.run([&quot;/usr/sbin/lsof&quot;, &quot;-nP&quot;, &quot;-a&quot;, &quot;-p&quot;, str(pid),
+                                   f&quot;-iTCP:{port}&quot;, &quot;-sTCP:LISTEN&quot;, &quot;-t&quot;],
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+                   for port in (RTMP, API))
+    ports = set()
+    try:
+        inodes = set()
+        for fd in Path(f&quot;/proc/{pid}/fd&quot;).iterdir():
+            with suppress(OSError):  # The server can close a descriptor mid-scan.
+                inodes.add(os.readlink(fd))
+        for family in (&quot;tcp&quot;, &quot;tcp6&quot;):
+            table = Path(&quot;/proc/net&quot;) / family
+            if not table.exists():
+                continue
+            for line in table.read_text().splitlines()[1:]:
+                fields = line.split()
+                if fields[3] == &quot;0A&quot; and f&quot;socket:[{fields[9]}]&quot; in inodes:
+                    ports.add(int(fields[1].split(&quot;:&quot;)[-1], 16))
+    except (OSError, ValueError, IndexError):
+        return False
+    return {RTMP, API}.issubset(ports)
+
+
+def ensure_server(binary, system):
+    if not CONFIG.is_file():
+        raise RuntimeError(f&quot;Missing receiver configuration: {CONFIG}&quot;)
+    try:
+        previous = int(STATE.read_text().strip())
+    except (OSError, ValueError):
+        previous = 0
+    previous_valid = is_kit_server(previous, binary, system)
+    if not previous_valid and any(port_open(p) for p in (RTMP, API)):
+        raise RuntimeError(&quot;TCP 1935 or 9997 is occupied by a service outside this launcher&#x27;s PID record. &quot;
+                           &quot;Inspect it before starting the kit.&quot;)
+    child = None
+    if previous_valid:
+        pid = previous
+    else:
+        with (RUN / &quot;mediamtx.log&quot;).open(&quot;ab&quot;) as log:
+            child = subprocess.Popen([binary, str(CONFIG)], cwd=SERVER, stdin=subprocess.DEVNULL,
+                                     stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        pid = child.pid
+        STATE.write_text(f&quot;{pid}\n&quot;)
+    deadline = time.monotonic() + 10
+    while time.monotonic() &lt; deadline:
+        if child is not None and child.poll() is not None:
+            break
+        if owns_listeners(pid, system) and port_open(RTMP) and api_ready():
+            print(f&quot;MediaMTX PID {pid} ready on TCP {RTMP}; localhost API {API} is responding.&quot;, flush=True)
+            return
+        time.sleep(0.25)
+    # Cleanup only a failing child started during this invocation.
+    if child is not None and child.poll() is None:
+        child.terminate()
+        try:
+            child.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            child.kill()
+            child.wait()
+    raise RuntimeError(f&quot;MediaMTX did not own both listeners and answer its API. Inspect {RUN / &#x27;mediamtx.log&#x27;}.&quot;)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(&quot;--setup&quot;, action=&quot;store_true&quot;, help=&quot;open the receiver and OBS for first-time setup&quot;)
+    parser.add_argument(&quot;--obs&quot;, metavar=&quot;PATH&quot;, help=&quot;path to native OBS executable&quot;)
+    parser.add_argument(&quot;--ffmpeg&quot;, default=&quot;ffmpeg&quot;, help=&quot;path to FFmpeg or command on PATH&quot;)
+    parser.add_argument(&quot;--cameras&quot;, nargs=&quot;+&quot;, choices=(&quot;gopro1&quot;, &quot;gopro2&quot;, &quot;gopro3&quot;, &quot;dji&quot;),
+                        default=[&quot;gopro2&quot;, &quot;gopro3&quot;, &quot;dji&quot;],
+                        help=&quot;include gopro1 only when the primary GoPro is configured for RTMP&quot;)
+    parser.add_argument(&quot;--stale&quot;, type=int, default=12)
+    parser.add_argument(&quot;--pixel-freeze&quot;, type=int, default=0)
+    args = parser.parse_args()
+    system = platform.system().lower()
+    arch = {&quot;x86_64&quot;: &quot;amd64&quot;, &quot;amd64&quot;: &quot;amd64&quot;, &quot;aarch64&quot;: &quot;arm64&quot;, &quot;arm64&quot;: &quot;arm64&quot;}.get(
+        platform.machine().lower())
+    if system not in {&quot;linux&quot;, &quot;darwin&quot;} or not arch:
+        parser.error(&quot;This launcher supports x86-64 and ARM64 Linux and macOS.&quot;)
+    if args.stale &lt; 4 or args.pixel_freeze &lt; 0:
+        parser.error(&quot;--stale must be at least 4; --pixel-freeze must be nonnegative.&quot;)
+    binary = executable(SERVER / &quot;bin&quot; / f&quot;{system}-{arch}&quot; / &quot;mediamtx&quot;)
+    command = obs_command(system, args.obs)
+    if not args.setup:
+        ffmpeg = executable(args.ffmpeg)
+        if not importlib.util.find_spec(&quot;obsws_python&quot;):
+            raise RuntimeError(&quot;Install requirements.txt in .venv (or the Python selected by FIELD_PYTHON).&quot;)
+    RUN.mkdir(mode=0o700, exist_ok=True)
+    with (nullcontext() if args.setup else exclusive(&quot;monitor.lock&quot;)):
+        with exclusive(&quot;startup.lock&quot;, wait=True):
+            ensure_server(binary, system)
+            if obs_is_open():
+                print(&quot;Reusing open OBS. Select Field Stream under both Profile and Scene Collection.&quot;, flush=True)
+            else:
+                if not args.setup:
+                    command.extend([&quot;--profile&quot;, &quot;Field Stream&quot;, &quot;--collection&quot;, &quot;Field Stream&quot;,
+                                    &quot;--scene&quot;, &quot;Combined Multiview&quot;])
+                with (RUN / &quot;obs-launch.log&quot;).open(&quot;ab&quot;) as log:
+                    proc = subprocess.Popen(command, cwd=str(Path(command[0]).parent), stdin=subprocess.DEVNULL,
+                                            stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+                (RUN / &quot;obs.pid&quot;).write_text(f&quot;{proc.pid}\n&quot;)
+                time.sleep(0.5)
+                if proc.poll() not in (None, 0):
+                    raise RuntimeError(f&quot;OBS failed to launch. Inspect {RUN / &#x27;obs-launch.log&#x27;}.&quot;)
+        if args.setup:
+            print(&quot;Create/select Field Stream under both OBS menus, enable WebSocket, then provision the scenes.&quot;)
+        else:
+            # Run in this process so Ctrl+C or termination releases the monitor lock.
+            import runpy
+            sys.argv = [str(ROOT / &quot;Monitor-Feeds.py&quot;), &quot;--ffmpeg&quot;, ffmpeg, &quot;--stale&quot;, str(args.stale),
+                        &quot;--pixel-freeze&quot;, str(args.pixel_freeze), &quot;--cameras&quot;, *args.cameras]
+            runpy.run_path(sys.argv[0], run_name=&quot;__main__&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        sys.exit(str(error))
+</code></pre></details><details class="details"><summary>gopro_usb.py</summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Operate one USB-attached GoPro on Linux. Uses iproute2 and the standard library.&quot;&quot;&quot;
+
+import argparse
+from dataclasses import dataclass
+import http.client
+import ipaddress
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+import time
+
+
+class CameraError(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class Camera:
+    interface: str
+    product: str
+    suffix: str
+
+    @property
+    def address(self):
+        a, b, c = self.suffix
+        return f&quot;172.2{a}.1{b}{c}.51&quot;
+
+
+def usb_cameras(net_root=Path(&quot;/sys/class/net&quot;)):
+    if not net_root.is_dir():
+        raise CameraError(&quot;Linux network sysfs is unavailable. Run this on the camera host with /sys/class/net mounted.&quot;)
+    cameras = []
+    for interface in sorted(net_root.iterdir()):
+        device = (interface / &quot;device&quot;).resolve()
+        for ancestor in (device, *device.parents):
+            if not (ancestor / &quot;idVendor&quot;).is_file():
+                continue
+            # Stop at the physical peripheral, even if it sits under a USB hub.
+            if (ancestor / &quot;idVendor&quot;).read_text().strip().lower() == &quot;2672&quot;:
+                serial_file = ancestor / &quot;serial&quot;
+                if serial_file.is_file():
+                    match = re.search(r&quot;([0-9]{3})$&quot;, serial_file.read_text().strip())
+                    if match:
+                        product_file = ancestor / &quot;product&quot;
+                        product = product_file.read_text().strip() if product_file.is_file() else &quot;GoPro&quot;
+                        cameras.append(Camera(interface.name, product, match[1]))
+            break
+    return cameras
+
+
+def ip_json(*args):
+    result = subprocess.run(
+        [&quot;ip&quot;, &quot;-j&quot;, &quot;-4&quot;, *args], capture_output=True, text=True, timeout=5
+    )
+    if result.returncode:
+        raise CameraError(result.stderr.strip() or &quot;iproute2 did not return the requested network information.&quot;)
+    return json.loads(result.stdout)
+
+
+def usb_host_address(camera):
+    &quot;&quot;&quot;Use an on-link IPv4 address and verify the route without overriding it.&quot;&quot;&quot;
+    address = ipaddress.IPv4Address(camera.address)
+    candidates = []
+    for link in ip_json(&quot;address&quot;, &quot;show&quot;, &quot;dev&quot;, camera.interface):
+        for addr in link.get(&quot;addr_info&quot;, []):
+            if addr.get(&quot;family&quot;) != &quot;inet&quot;:
+                continue
+            local = ipaddress.IPv4Interface(f&quot;{addr[&#x27;local&#x27;]}/{addr[&#x27;prefixlen&#x27;]}&quot;)
+            if local.ip != address and address in local.network:
+                candidates.append(str(local.ip))
+    if not candidates:
+        raise CameraError(f&quot;No on-link USB IPv4 address for {camera.address} on {camera.interface}. &quot;
+                          &quot;Power on the GoPro, enable IPv4 DHCP for that USB interface, and retry.&quot;)
+    for local in candidates:
+        routes = ip_json(&quot;route&quot;, &quot;get&quot;, camera.address, &quot;from&quot;, local)
+        if any(r.get(&quot;dev&quot;) == camera.interface and not r.get(&quot;gateway&quot;)
+               and r.get(&quot;type&quot;, &quot;unicast&quot;) == &quot;unicast&quot; for r in routes):
+            return local
+    raise CameraError(f&quot;The kernel routes {camera.address} outside {camera.interface} or through a gateway. &quot;
+                      &quot;Check for overlapping camera, LAN, VPN, or container subnets.&quot;)
+
+
+def choose(cameras, interface=None, serial=None):
+    selected = [c for c in cameras if (not interface or c.interface == interface)
+                and (not serial or c.suffix == serial)]
+    if len(selected) != 1:
+        if not selected:
+            raise CameraError(&quot;No matching GoPro USB network device. Check cable, power, network mode and filters. &quot;
+                              &quot;Use &#x27;list&#x27; and &#x27;ip -br address&#x27; to inspect.&quot;)
+        raise CameraError(&quot;Multiple GoPro USB interfaces found. Select one with --interface or --serial.&quot;)
+    return selected[0]
+
+
+STATES = {0: &quot;off&quot;, 1: &quot;idle&quot;, 2: &quot;streaming&quot;, 3: &quot;low-power preview&quot;}
+
+
+class Controller:
+    def __init__(self, camera, host, *, http_port=8080):
+        self.camera = camera
+        self.host = host
+        self.http_port = http_port
+
+    def call(self, path):
+        # Direct TCP, no DNS, redirects or proxy. Bind the source used for the camera&#x27;s reply stream.
+        conn = http.client.HTTPConnection(
+            self.camera.address, self.http_port, timeout=4, source_address=(self.host, 0)
+        )
+        try:
+            conn.request(&quot;GET&quot;, &quot;/gopro/&quot; + path)
+            response = conn.getresponse()
+            raw = response.read(65537)
+            if response.status != 200:
+                raise CameraError(f&quot;GoPro {path} returned HTTP {response.status}. &quot;
+                                  &quot;Check the camera&#x27;s idle state and its firmware.&quot;)
+            if len(raw) &gt; 65536:
+                raise CameraError(&quot;Unexpected GoPro response size.&quot;)
+            result = json.loads(raw)
+        finally:
+            conn.close()
+        if not isinstance(result, dict):
+            raise CameraError(f&quot;Unexpected GoPro reply to {path}.&quot;)
+        if (path.startswith(&quot;webcam/&quot;) or &quot;error&quot; in result) and result.get(&quot;error&quot;) != 0:
+            raise CameraError(f&quot;GoPro rejected {path}: {result}.&quot;)
+        return result
+
+    def status(self):
+        status = self.call(&quot;webcam/status&quot;).get(&quot;status&quot;)
+        if type(status) is not int or status not in STATES:
+            raise CameraError(f&quot;Unknown GoPro webcam state: {status!r}.&quot;)
+        return status
+
+    def wait(self, expected):
+        deadline = time.monotonic() + 7
+        while True:
+            current = self.status()
+            if current in expected:
+                return current
+            if time.monotonic() &gt;= deadline:
+                raise CameraError(f&quot;GoPro remained {STATES[current]}. Use &#x27;status&#x27; before retrying.&quot;)
+            time.sleep(0.25)
+
+    def start(self):
+        state = self.status()
+        if state == 2:
+            return &quot;Already streaming. Existing settings were preserved. Check the live picture in OBS.&quot;
+        if state == 3:
+            raise CameraError(&quot;Another client has a preview session. Close it or run &#x27;stop&#x27; before &#x27;start&#x27;.&quot;)
+        # GoPro&#x27;s multi-webcam reference releases USB command-and-control before starting webcam.
+        self.call(&quot;camera/control/wired_usb?p=0&quot;)
+        self.call(&quot;webcam/start?res=12&amp;port=8554&amp;protocol=TS&quot;)
+        self.wait({2})
+        return &quot;GoPro reports 1080p webcam mode started. Confirm moving video in OBS.&quot;
+
+    def stop(self):
+        state = self.status()
+        if state in (2, 3):
+            self.call(&quot;webcam/stop&quot;)
+            state = self.wait({0, 1})
+        if state == 1:
+            self.call(&quot;webcam/exit&quot;)
+        # Some firmware reports idle rather than off on a USB connection even after exit.
+        self.wait({0, 1})
+        return &quot;GoPro webcam stream is stopped.&quot;
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(&quot;command&quot;, choices=[&quot;list&quot;, &quot;address&quot;, &quot;status&quot;, &quot;start&quot;, &quot;stop&quot;])
+    parser.add_argument(&quot;--interface&quot;, help=&quot;Linux GoPro USB network interface, for example enx...&quot;)
+    parser.add_argument(&quot;--serial&quot;, metavar=&quot;LAST3&quot;, help=&quot;Last three decimal digits of the GoPro serial&quot;)
+    args = parser.parse_args(argv)
+    if args.serial and not re.fullmatch(r&quot;[0-9]{3}&quot;, args.serial):
+        parser.error(&quot;--serial requires the last three decimal digits, including leading zeroes&quot;)
+    if not sys.platform.startswith(&quot;linux&quot;):
+        parser.error(&quot;This helper requires Linux sysfs and iproute2.&quot;)
+    try:
+        cameras = usb_cameras()
+        if args.command == &quot;list&quot;:
+            if not cameras:
+                print(&quot;No GoPro USB network interfaces detected.&quot;)
+            for camera in cameras:
+                try:
+                    local = usb_host_address(camera)
+                except CameraError as exc:
+                    local = str(exc)
+                print(f&quot;{camera.interface}  {camera.product}  serial …{camera.suffix}  &quot;
+                      f&quot;camera {camera.address}  host {local}&quot;)
+            return 0
+        camera = choose(cameras, args.interface, args.serial)
+        local = usb_host_address(camera)
+        if args.command == &quot;address&quot;:
+            print(local)
+            return 0
+        control = Controller(camera, local)
+        if args.command == &quot;status&quot;:
+            print(STATES[control.status()])
+        elif args.command == &quot;start&quot;:
+            print(control.start())
+            print(f&quot;OBS Media Source: udp://{local}:8554?localaddr={local}&amp;localport=8554&quot;)
+        else:
+            print(control.stop())
+        return 0
+    except (CameraError, OSError, ValueError, subprocess.TimeoutExpired, http.client.HTTPException) as exc:
+        print(f&quot;GoPro USB: {exc}&quot;, file=sys.stderr)
+        return 1
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main())
+</code></pre></details><details class="details"><summary>Configure-Scenes.py</summary><pre><code>&quot;&quot;&quot;Build the native OBS scenes for the Field Stream camera kit.&quot;&quot;&quot;
+import argparse
+import getpass
+from ipaddress import IPv4Address
+import os
+from pathlib import Path
+import platform
+import re
+import socket
+import sys
+from urllib.parse import parse_qs, urlsplit
+
+FIELD = &quot;Field Stream&quot;
+GRID = &quot;Combined Multiview&quot;
+PIP = &quot;Field PiP&quot;
+CAMERAS = {
+    &quot;Sony&quot;: None,
+    &quot;GoPro USB&quot;: None,
+    &quot;GoPro 2&quot;: &quot;gopro2&quot;,
+    &quot;GoPro 3&quot;: &quot;gopro3&quot;,
+    &quot;DJI&quot;: &quot;dji&quot;,
+}
+PRIMARY_RTMP = &quot;rtmp://127.0.0.1:1935/live/gopro1&quot;
+FRAME = (0, 0, 1920, 1080)
+GRID_POSITIONS = {
+    &quot;Sony&quot;: (0, 90, 960, 540),
+    &quot;GoPro USB&quot;: (960, 90, 960, 540),
+    &quot;GoPro 2&quot;: (0, 630, 640, 360),
+    &quot;GoPro 3&quot;: (640, 630, 640, 360),
+    &quot;DJI&quot;: (1280, 630, 640, 360),
+}
+PIP_POSITIONS = {
+    &quot;Sony&quot;: FRAME,
+    &quot;GoPro USB&quot;: (24, 813, 432, 243),
+    &quot;GoPro 2&quot;: (504, 813, 432, 243),
+    &quot;GoPro 3&quot;: (984, 813, 432, 243),
+    &quot;DJI&quot;: (1464, 813, 432, 243),
+}
+VIDEO = dict(baseWidth=1920, baseHeight=1080, outputWidth=1920, outputHeight=1080,
+             fpsNumerator=30, fpsDenominator=1)
+
+
+def slate_path(camera):
+    filename = &quot;standby-&quot; + camera.lower().replace(&quot; &quot;, &quot;-&quot;) + &quot;.png&quot;
+    return Path(__file__).resolve().parent / &quot;assets&quot; / filename
+
+
+def media_settings(url, input_format=&quot;&quot;):
+    return {
+        &quot;input&quot;: url, &quot;is_local_file&quot;: False, &quot;input_format&quot;: input_format, &quot;ffmpeg_options&quot;: &quot;&quot;,
+        &quot;buffering_mb&quot;: 1, &quot;reconnect_delay_sec&quot;: 2, &quot;hw_decode&quot;: False,
+        &quot;restart_on_activate&quot;: False, &quot;close_when_inactive&quot;: False,
+        &quot;clear_on_media_end&quot;: True, &quot;looping&quot;: False,
+    }
+
+
+def usb_url(address):
+    return (f&quot;udp://{address}:8554?localaddr={address}&amp;localport=8554&quot;
+            &quot;&amp;overrun_nonfatal=1&amp;timeout=5000000&quot;)
+
+
+def usb_address(value, *, verify_local):
+    address = IPv4Address(value)
+    if address.is_unspecified or address.is_loopback or address.is_multicast or address.is_reserved:
+        raise ValueError(&quot;Use the unicast IPv4 address assigned to the PC&#x27;s GoPro USB interface.&quot;)
+    if verify_local:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                sock.bind((str(address), 0))
+        except OSError as exc:
+            raise ValueError(f&quot;{address} is not available on this host. Connect the GoPro &quot;
+                             &quot;and use the PC-side USB address displayed by the helper.&quot;) from exc
+    return str(address)
+
+
+def saved_usb_address(settings):
+    url = urlsplit(settings.get(&quot;input&quot;, &quot;&quot;))
+    query = parse_qs(url.query)
+    if (url.scheme == &quot;udp&quot; and url.hostname and url.port == 8554 and
+            query.get(&quot;localaddr&quot;) == [url.hostname] and query.get(&quot;localport&quot;) == [&quot;8554&quot;]):
+        return usb_address(url.hostname, verify_local=False)
+    raise ValueError(&quot;Configure the Linux GoPro with --gopro-usb-bind HOST_USB_IP or --gopro-wireless.&quot;)
+
+
+def transform(box):
+    x, y, width, height = box
+    return {
+        &quot;positionX&quot;: x, &quot;positionY&quot;: y, &quot;alignment&quot;: 5,  # top + left
+        &quot;boundsType&quot;: &quot;OBS_BOUNDS_SCALE_INNER&quot;, &quot;boundsAlignment&quot;: 0,
+        &quot;boundsWidth&quot;: width, &quot;boundsHeight&quot;: height,
+        &quot;rotation&quot;: 0, &quot;scaleX&quot;: 1, &quot;scaleY&quot;: 1,
+        &quot;cropLeft&quot;: 0, &quot;cropRight&quot;: 0, &quot;cropTop&quot;: 0, &quot;cropBottom&quot;: 0,
+    }
+
+
+def provision(client, gopro_usb_bind=None, gopro_wireless=False):
+    def call(request, **fields):
+        return client.send(request, fields, raw=True) or {}
+
+    profile = call(&quot;GetProfileList&quot;)[&quot;currentProfileName&quot;]
+    collection = call(&quot;GetSceneCollectionList&quot;)[&quot;currentSceneCollectionName&quot;]
+    if profile != FIELD or collection != FIELD:
+        raise ValueError(f&quot;Select &#x27;{FIELD}&#x27; in both Profile and Scene Collection in OBS first. &quot;
+                         f&quot;Current selections: {profile!r} / {collection!r}.&quot;)
+    for request in (&quot;GetStreamStatus&quot;, &quot;GetRecordStatus&quot;):
+        if call(request)[&quot;outputActive&quot;]:
+            raise ValueError(&quot;Run setup while OBS is offline, after stopping recording and streaming.&quot;)
+
+    kinds = set(call(&quot;GetInputKindList&quot;)[&quot;inputKinds&quot;])
+    os_name = platform.system()
+    native_kinds = {&quot;Windows&quot;: (&quot;dshow_input&quot;,), &quot;Darwin&quot;: (&quot;macos-avcapture&quot;, &quot;av_capture_input&quot;),
+                    &quot;Linux&quot;: (&quot;v4l2_input&quot;,)}
+    native = next((kind for kind in native_kinds.get(os_name, ()) if kind in kinds), None)
+    if native is None or not {&quot;image_source&quot;, &quot;ffmpeg_source&quot;}.issubset(kinds):
+        raise ValueError(f&quot;{os_name} OBS must provide its native camera input, Image, and Media Source. &quot;
+                         f&quot;Expected camera input: {native_kinds.get(os_name)}.&quot;)
+    if gopro_usb_bind is not None and gopro_wireless:
+        raise ValueError(&quot;Choose one Linux GoPro input transport.&quot;)
+    if os_name != &quot;Linux&quot; and (gopro_usb_bind is not None or gopro_wireless):
+        raise ValueError(&quot;The GoPro transport options apply only to a native Linux OBS host.&quot;)
+
+    inputs = {item[&quot;inputName&quot;]: item for item in call(&quot;GetInputList&quot;)[&quot;inputs&quot;]}
+    scenes = {item[&quot;sceneName&quot;] for item in call(&quot;GetSceneList&quot;)[&quot;scenes&quot;]}
+    camera_scenes = [f&quot;Cam - {camera}&quot; for camera in CAMERAS]
+    scene_names = camera_scenes + [GRID, PIP]
+    feeds = {}
+    assets = {}
+    corrections = {}
+    for camera, key in CAMERAS.items():
+        asset = slate_path(camera)
+        if not asset.is_file():
+            raise ValueError(f&quot;Missing {asset.name}. Extract the complete kit with its assets folder.&quot;)
+        assets[camera] = asset
+        slate = f&quot;Slate - {camera}&quot;
+        feed = f&quot;Feed - {camera}&quot;
+        for name in (slate, feed):
+            if name in scenes:
+                raise ValueError(f&quot;An existing scene uses the input name {name!r}.&quot;)
+        if slate in inputs:
+            current_kind = re.sub(r&quot;_v\d+$&quot;, &quot;&quot;, inputs[slate][&quot;inputKind&quot;])
+            if current_kind == &quot;image_source&quot;:
+                current = call(&quot;GetInputSettings&quot;, inputName=slate)[&quot;inputSettings&quot;]
+                old_file = current.get(&quot;file&quot;)
+                if not old_file or not Path(old_file).is_file():
+                    corrections[slate] = {&quot;file&quot;: str(asset)}
+            elif os_name != &quot;Windows&quot; or current_kind != &quot;text_gdiplus&quot;:
+                raise ValueError(f&quot;{slate!r} must be an Image source or an existing Windows Text (GDI+) slate.&quot;)
+        if key:
+            kind = &quot;ffmpeg_source&quot;
+            settings = media_settings(f&quot;rtmp://127.0.0.1:1935/live/{key}&quot;)
+        elif camera == &quot;GoPro USB&quot; and os_name == &quot;Linux&quot;:
+            kind = &quot;ffmpeg_source&quot;
+            settings = {}
+        else:
+            kind = native
+            settings = {}
+            if native == &quot;dshow_input&quot;:
+                settings = {&quot;video_device_id&quot;: &quot;&quot;, &quot;deactivate_when_not_showing&quot;: False}
+        if feed in inputs:
+            existing = inputs[feed][&quot;inputKind&quot;]
+            if os_name == &quot;Darwin&quot; and not key and existing in native_kinds[&quot;Darwin&quot;] and existing in kinds:
+                kind = existing
+            elif existing != kind:
+                raise ValueError(f&quot;{feed!r} uses {existing!r}. Expected {kind!r}.&quot;)
+        if camera == &quot;GoPro USB&quot; and os_name == &quot;Linux&quot;:
+            current = call(&quot;GetInputSettings&quot;, inputName=feed)[&quot;inputSettings&quot;] if feed in inputs else {}
+            wireless = gopro_wireless or (gopro_usb_bind is None and current.get(&quot;input&quot;) == PRIMARY_RTMP)
+            if wireless:
+                settings = media_settings(PRIMARY_RTMP)
+            elif gopro_usb_bind is not None:
+                settings = media_settings(usb_url(usb_address(gopro_usb_bind, verify_local=True)), &quot;mpegts&quot;)
+            else:
+                settings = media_settings(usb_url(saved_usb_address(current)), &quot;mpegts&quot;)
+            if feed in inputs and (gopro_wireless or gopro_usb_bind is not None):
+                # The source remains an ffmpeg_source in either mode, keeping its filters and scene references.
+                changes = {k: settings[k] for k in (&quot;input&quot;, &quot;input_format&quot;, &quot;is_local_file&quot;,
+                                                    &quot;restart_on_activate&quot;, &quot;close_when_inactive&quot;,
+                                                    &quot;clear_on_media_end&quot;) if current.get(k) != settings[k]}
+                if changes:
+                    corrections[feed] = changes
+        feeds[camera] = (kind, settings)
+    for name in scene_names:
+        if name in inputs:
+            raise ValueError(f&quot;An existing input uses the scene name {name!r}.&quot;)
+
+    for name, changes in corrections.items():
+        call(&quot;SetInputSettings&quot;, inputName=name, inputSettings=changes, overlay=True)
+    current_video = call(&quot;GetVideoSettings&quot;)
+    if any(current_video[key] != value for key, value in VIDEO.items()):
+        call(&quot;SetVideoSettings&quot;, **VIDEO)
+
+    new_grid = GRID not in scenes
+    for name in scene_names:
+        if name not in scenes:
+            call(&quot;CreateScene&quot;, sceneName=name)
+
+    def place(scene, source, box, kind=None, settings=None):
+        items = call(&quot;GetSceneItemList&quot;, sceneName=scene)[&quot;sceneItems&quot;]
+        matches = [item for item in items if item[&quot;sourceName&quot;] == source]
+        if len(matches) &gt; 1:
+            raise ValueError(f&quot;Multiple copies of {source!r} in {scene!r}. Keep one, then rerun.&quot;)
+        if matches:
+            item_id = matches[0][&quot;sceneItemId&quot;]
+        elif kind is not None and source not in inputs:
+            result = call(&quot;CreateInput&quot;, sceneName=scene, inputName=source, inputKind=kind,
+                          inputSettings=settings, sceneItemEnabled=True)
+            item_id = result[&quot;sceneItemId&quot;]
+            inputs[source] = {&quot;inputKind&quot;: kind}
+        else:
+            item_id = call(&quot;CreateSceneItem&quot;, sceneName=scene, sourceName=source,
+                           sceneItemEnabled=True)[&quot;sceneItemId&quot;]
+        item = {&quot;sceneName&quot;: scene, &quot;sceneItemId&quot;: item_id}
+        call(&quot;SetSceneItemTransform&quot;, **item, sceneItemTransform=transform(box))
+        return item
+
+    for camera, (kind, settings) in feeds.items():
+        scene = f&quot;Cam - {camera}&quot;
+        slate = place(scene, f&quot;Slate - {camera}&quot;, FRAME, &quot;image_source&quot;,
+                      {&quot;file&quot;: str(assets[camera]), &quot;unload&quot;: False})
+        call(&quot;SetSceneItemEnabled&quot;, **slate, sceneItemEnabled=True)
+        call(&quot;SetSceneItemIndex&quot;, **slate, sceneItemIndex=0)
+        feed = f&quot;Feed - {camera}&quot;
+        place(scene, feed, FRAME, kind, settings)
+        # V4L2 provides video only. Its separate USB audio device belongs in the master mixer.
+        if kind != &quot;v4l2_input&quot;:
+            call(&quot;SetInputMute&quot;, inputName=feed, inputMuted=True)
+
+    for scene, layout in ((GRID, GRID_POSITIONS), (PIP, PIP_POSITIONS)):
+        for camera, box in layout.items():
+            item = place(scene, f&quot;Cam - {camera}&quot;, box)
+            call(&quot;SetSceneItemEnabled&quot;, **item, sceneItemEnabled=True)
+            if scene == PIP and camera == &quot;Sony&quot;:
+                call(&quot;SetSceneItemIndex&quot;, **item, sceneItemIndex=0)
+    if new_grid:
+        call(&quot;SetCurrentProgramScene&quot;, sceneName=GRID)
+    return feeds[&quot;GoPro USB&quot;][1].get(&quot;input&quot;)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__,
+        epilog=&quot;Open the dedicated &#x27;Field Stream&#x27; profile and collection first. &quot;
+               &quot;Stop the monitor before provisioning. Rerunning reapplies geometry and mutes camera audio. &quot;
+               &quot;Hardware bindings and filters are preserved. Use --gopro-usb-bind to rebind the Linux UDP input.&quot;)
+    parser.add_argument(&quot;--port&quot;, type=int, default=os.environ.get(&quot;OBS_WS_PORT&quot;, 4455),
+                        help=&quot;local OBS WebSocket v5 port (default: 4455 or OBS_WS_PORT)&quot;)
+    transport = parser.add_mutually_exclusive_group()
+    transport.add_argument(&quot;--gopro-usb-bind&quot;, metavar=&quot;HOST_USB_IP&quot;,
+                           help=&quot;Linux wired mode: PC-side IPv4 on the GoPro USB interface&quot;)
+    transport.add_argument(&quot;--gopro-wireless&quot;, action=&quot;store_true&quot;,
+                           help=&quot;Linux wireless mode: use local RTMP live/gopro1 for the first GoPro&quot;)
+    args = parser.parse_args()
+    import obsws_python as obs
+    password = os.environ.get(&quot;OBS_WS_PASSWORD&quot;) or getpass.getpass(&quot;OBS WebSocket password: &quot;)
+    client = obs.ReqClient(host=&quot;127.0.0.1&quot;, port=args.port, password=password, timeout=10)
+    try:
+        primary_url = provision(client, args.gopro_usb_bind, args.gopro_wireless)
+    finally:
+        client.disconnect()
+    print(&quot;Five camera scenes, Combined Multiview and Field PiP are ready.&quot;)
+    if platform.system() == &quot;Linux&quot;:
+        print(&quot;Select the Sony V4L2 device in Feed - Sony.&quot;)
+        if primary_url == PRIMARY_RTMP:
+            print(&quot;First GoPro: use Quik to publish to live/gopro1; its OBS source keeps the name Feed - GoPro USB.&quot;)
+        else:
+            print(&quot;Start the wired GoPro USB webcam sender.&quot;)
+    else:
+        print(&quot;Select the Sony and the GoPro Webcam devices in their respective Feed properties.&quot;)
+    print(&quot;Select one global Mic/Aux in OBS for program audio.&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        sys.exit(&quot;Setup cancelled.&quot;)
+    except Exception as exc:
+        sys.exit(f&quot;Could not complete OBS setup: {exc}&quot;)
+</code></pre></details><details class="details"><summary>Monitor-Feeds.py</summary><pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Keep the wireless items in the Field Stream collection on live video or a slate.&quot;&quot;&quot;
+import argparse
+import getpass
+import json
+import logging
+import os
+import shutil
+import subprocess
+import threading
+import time
+from contextlib import suppress
+from urllib.request import ProxyHandler, build_opener
+
+DEFAULT_CAMERAS = (&quot;gopro2&quot;, &quot;gopro3&quot;, &quot;dji&quot;)
+CAMERAS = {&quot;gopro1&quot;: &quot;GoPro USB&quot;, &quot;gopro2&quot;: &quot;GoPro 2&quot;, &quot;gopro3&quot;: &quot;GoPro 3&quot;, &quot;dji&quot;: &quot;DJI&quot;}
+WORKSPACE = &quot;Field Stream&quot;
+API_URL = &quot;http://127.0.0.1:9997/v3/paths/list?itemsPerPage=100&quot;
+LOOPBACK_HTTP = build_opener(ProxyHandler({}))
+FRAME_BYTES = 96 * 54
+POLL = 1.0
+
+
+def log(message):
+    print(f&quot;{time.strftime(&#x27;%H:%M:%S&#x27;)}  {message}&quot;, flush=True)
+
+
+def online_paths():
+    &quot;&quot;&quot;A missing API is unknown. The independent video probe still works.&quot;&quot;&quot;
+    try:
+        with LOOPBACK_HTTP.open(API_URL, timeout=0.8) as response:
+            rows = json.load(response)[&quot;items&quot;]
+        return {row[&quot;name&quot;] for row in rows if row[&quot;online&quot;]}
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def probe_command(ffmpeg, url, stale):
+    # Intra frames only. The select filter emits only when source timestamps
+    # advance, and passthrough prevents output frame-rate synthesis on a stall.
+    return [ffmpeg, &quot;-hide_banner&quot;, &quot;-loglevel&quot;, &quot;error&quot;, &quot;-nostdin&quot;,
+            &quot;-rw_timeout&quot;, str(int(1_000_000 * stale)), &quot;-analyzeduration&quot;, &quot;1000000&quot;,
+            &quot;-probesize&quot;, &quot;1000000&quot;, &quot;-threads&quot;, &quot;1&quot;, &quot;-skip_frame&quot;, &quot;nokey&quot;,
+            &quot;-i&quot;, url, &quot;-map&quot;, &quot;0:v:0&quot;, &quot;-an&quot;, &quot;-sn&quot;, &quot;-dn&quot;,
+            &quot;-vf&quot;, &quot;select=&#x27;isnan(prev_selected_t)+gte(t-prev_selected_t,0.5)&#x27;,&quot;
+                   &quot;scale=96:54:flags=area,format=gray&quot;,
+            &quot;-fps_mode&quot;, &quot;passthrough&quot;, &quot;-threads:v&quot;, &quot;1&quot;, &quot;-c:v&quot;, &quot;rawvideo&quot;,
+            &quot;-flush_packets&quot;, &quot;1&quot;, &quot;-f&quot;, &quot;rawvideo&quot;, &quot;pipe:1&quot;]
+
+
+class VideoProbe:
+    def __init__(self, ffmpeg, key, stale, pixel_freeze):
+        self.url = f&quot;rtmp://127.0.0.1:1935/live/{key}&quot;
+        self.command = probe_command(ffmpeg, self.url, stale)
+        self.stale, self.pixel_freeze = stale, pixel_freeze
+        self.process = None
+        self.lock = threading.Lock()
+        self.next_start = 0.0
+        self.started = 0.0
+        self.frames = 0
+        self.changes = 0
+        self.last_frame = self.changed = 0.0
+        self.previous = None
+
+    def start(self, now):
+        proc = subprocess.Popen(
+            self.command, stdout=subprocess.PIPE, stdin=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, creationflags=getattr(subprocess, &quot;CREATE_NO_WINDOW&quot;, 0)
+        )
+        with self.lock:
+            self.process = proc
+            self.started = now
+            self.frames = 0
+            self.last_frame = self.changed = 0.0
+            self.previous = None
+        threading.Thread(target=self.read_frames, args=(proc,), daemon=True).start()
+
+    def read_frames(self, proc):
+        with proc.stdout as pipe:
+            while len(frame := pipe.read(FRAME_BYTES)) == FRAME_BYTES:
+                now = time.monotonic()
+                with self.lock:
+                    if self.process is not proc:
+                        break
+                    self.frames += 1
+                    self.last_frame = now
+                    if frame != self.previous:
+                        self.changes += 1
+                        self.changed = now
+                    self.previous = frame
+
+    def stop(self):
+        with self.lock:
+            proc, self.process = self.process, None
+        if proc is not None:
+            if proc.poll() is None:
+                with suppress(ProcessLookupError):
+                    proc.kill()
+            proc.wait()
+
+    def check(self, now, publisher):
+        if publisher is False:
+            self.stop()
+            self.next_start = 0.0
+            return False, &quot;publisher offline&quot;
+        if self.process is not None and self.process.poll() is not None:
+            self.stop()
+            self.next_start = now + 2
+        if self.process is None and now &gt;= self.next_start:
+            self.start(now)
+        with self.lock:
+            frames, last, changed = self.frames, self.last_frame, self.changed
+        if self.process is None:
+            return False, &quot;retrying decoder&quot;
+        if now - (last or self.started) &gt; self.stale:
+            self.stop()
+            self.next_start = now + 1
+            return False, &quot;video timestamps stalled&quot;
+        if frames &lt; 2:
+            return False, &quot;waiting for two video keyframes&quot;
+        if self.pixel_freeze and now - changed &gt; self.pixel_freeze:
+            # Keep this decoder open: a later changed frame must clear the fault.
+            return False, &quot;repeated image&quot;
+        return True, &quot;decoded video&quot;
+
+
+class RenderCheck:
+    &quot;&quot;&quot;Detect a frozen OBS picture if the camera independently shows movement.&quot;&quot;&quot;
+    def __init__(self):
+        self.shot = None
+        self.sample_at = 0.0
+        self.last_change = 0.0
+        self.change_count = 0
+        self.stuck = False
+        self.recovery_changes = 0
+        self.unavailable = False
+
+    def ready(self, obs, name, now, changes):
+        if now &lt; self.sample_at:
+            return not (self.stuck or self.unavailable)
+        self.sample_at = now + 3
+        active = obs.get_source_active(name)
+        if not (active.video_active or active.video_showing):
+            self.shot, self.stuck, self.unavailable = None, False, False
+            self.recovery_changes = 0
+            return True
+        from obsws_python.error import OBSSDKRequestError
+        try:
+            shot = obs.get_source_screenshot(name, &quot;png&quot;, 96, 54, -1).image_data
+        except OBSSDKRequestError:
+            # An active source can report Playing while lacking a drawable image.
+            self.shot, self.unavailable = None, True
+            return False
+        self.unavailable = False
+        if shot != self.shot:
+            self.shot = shot
+            self.last_change, self.change_count = now, changes
+            if self.stuck:
+                self.recovery_changes += 1
+                if self.recovery_changes &gt;= 2:
+                    self.stuck = False
+                    self.recovery_changes = 0
+        elif now - self.last_change &gt;= 15 and changes - self.change_count &gt;= 3:
+            self.stuck = True
+            self.recovery_changes = 0
+        return not self.stuck
+
+
+class Switch:
+    def __init__(self, title):
+        self.title = title
+        self.scene = &quot;Cam - &quot; + title
+        self.feed = &quot;Feed - &quot; + title
+        self.slate = &quot;Slate - &quot; + title
+        self.candidate = None
+        self.since = 0.0
+        self.notice = None
+        self.next_restart = 0.0
+        self.render = RenderCheck()
+
+    def report(self, text):
+        if text != self.notice:
+            log(f&quot;{self.title}: {text}&quot;)
+            self.notice = text
+
+    def update(self, obs, signal_good, reason, now, changes):
+        items = obs.get_scene_item_list(self.scene).scene_items
+        feeds = [x for x in items if x[&quot;sourceName&quot;] == self.feed]
+        slates = [x for x in items if x[&quot;sourceName&quot;] == self.slate]
+        if len(feeds) != 1 or len(slates) != 1:
+            self.report(&quot;check unique Feed and Slate items in the camera scene&quot;)
+            self.candidate = None
+            return
+        feed, slate = feeds[0], slates[0]
+        if self.title == CAMERAS[&quot;gopro1&quot;]:
+            # The primary slot may alternatively contain a direct USB decoder.
+            settings = obs.get_input_settings(self.feed)
+            if (settings.input_kind != &quot;ffmpeg_source&quot; or
+                    settings.input_settings.get(&quot;input&quot;) != &quot;rtmp://127.0.0.1:1935/live/gopro1&quot;):
+                self.report(&quot;primary slot uses USB; omit gopro1 from wireless monitoring&quot;)
+                self.candidate = None
+                return
+        if (feed.get(&quot;inputKind&quot;) != &quot;ffmpeg_source&quot; or not slate[&quot;sceneItemEnabled&quot;]
+                or not feed[&quot;sceneItemEnabled&quot;]):
+            self.report(&quot;enable both the Media Source and its opaque slate; monitoring paused&quot;)
+            self.candidate = None
+            return
+        good = signal_good
+        if signal_good:
+            state = obs.get_media_input_status(self.feed).media_state
+            if state != &quot;OBS_MEDIA_STATE_PLAYING&quot;:
+                good, reason = False, state
+            elif not self.render.ready(obs, self.feed, now, changes):
+                good, reason = False, &quot;OBS picture unavailable or stalled&quot;
+        else:
+            self.render = RenderCheck()
+        if good != self.candidate:
+            self.candidate, self.since = good, now
+        if now - self.since &lt; (2.0 if good else 3.0):
+            return
+        # Change only z-order in this two-layer camera view. The decoder remains
+        # active behind the opaque slate and every parent layout sees the change.
+        visible = feed[&quot;sceneItemIndex&quot;] &gt; slate[&quot;sceneItemIndex&quot;]
+        if visible != good:
+            if not right_workspace(obs):
+                return
+            obs.set_scene_item_index(self.scene, slate[&quot;sceneItemId&quot;], feed[&quot;sceneItemIndex&quot;])
+        self.report(&quot;live&quot; if good else f&quot;slate ({reason})&quot;)
+        if signal_good and not good and now &gt;= self.next_restart and now - self.since &gt;= 6:
+            active = obs.get_source_active(self.feed)
+            if (active.video_showing or active.video_active) and right_workspace(obs):
+                obs.trigger_media_input_action(self.feed, &quot;OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART&quot;)
+                self.next_restart = now + 25
+                log(f&quot;{self.title}: restarted OBS Media Source behind its slate.&quot;)
+
+
+def right_workspace(client):
+    return (client.get_scene_collection_list().current_scene_collection_name == WORKSPACE
+            and client.get_profile_list().current_profile_name == WORKSPACE)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(&quot;--cameras&quot;, nargs=&quot;+&quot;, choices=CAMERAS, default=list(DEFAULT_CAMERAS))
+    p.add_argument(&quot;--ffmpeg&quot;, default=&quot;ffmpeg&quot;)
+    p.add_argument(&quot;--stale&quot;, type=int, default=12, metavar=&quot;SECONDS&quot;,
+                   help=&quot;restart probe after this gap in video keyframes (default 12)&quot;)
+    p.add_argument(&quot;--pixel-freeze&quot;, type=int, default=0, metavar=&quot;SECONDS&quot;,
+                   help=&quot;also slate repeated 96x54 images; 0 disables this optional heuristic&quot;)
+    p.add_argument(&quot;--port&quot;, default=int(os.getenv(&quot;OBS_WS_PORT&quot;, &quot;4455&quot;)), type=int)
+    args = p.parse_args()
+    if args.stale &lt; 4 or args.pixel_freeze &lt; 0 or not 1 &lt;= args.port &lt;= 65535:
+        p.error(&quot;--stale must be &gt;=4; --pixel-freeze &gt;=0; --port 1..65535&quot;)
+    ffmpeg = shutil.which(args.ffmpeg)
+    if not ffmpeg:
+        p.error(&quot;FFmpeg is missing. Install FFmpeg or supply --ffmpeg.&quot;)
+    try:
+        import obsws_python
+        from obsws_python.error import OBSSDKRequestError
+    except ImportError:
+        p.error(&quot;Install obsws-python in this Python environment.&quot;)
+    logging.getLogger(&quot;obsws_python&quot;).setLevel(logging.CRITICAL)
+    password = os.environ.get(&quot;OBS_WS_PASSWORD&quot;) or getpass.getpass(&quot;OBS WebSocket password: &quot;)
+    if not password:
+        p.error(&quot;Enter the password shown by OBS under Tools &gt; WebSocket Server Settings.&quot;)
+    probes = {key: VideoProbe(ffmpeg, key, args.stale, args.pixel_freeze)
+              for key in dict.fromkeys(args.cameras)}
+    switches = {key: Switch(CAMERAS[key]) for key in probes}
+    client, notice, api_available = None, None, None
+    try:
+        while True:
+            try:
+                if client is None:
+                    client = obsws_python.ReqClient(host=&quot;127.0.0.1&quot;, port=args.port,
+                                                    password=password, timeout=3)
+                if not right_workspace(client):
+                    if notice != &quot;workspace&quot;:
+                        log(&quot;Paused. Select Field Stream under both Profile and Scene Collection.&quot;)
+                        notice = &quot;workspace&quot;
+                    for probe in probes.values():
+                        probe.stop()
+                    for switch in switches.values():
+                        switch.candidate = None
+                    time.sleep(3)
+                    continue
+                if notice != &quot;online&quot;:
+                    log(&quot;Watching &quot; + &quot;, &quot;.join(CAMERAS[key] for key in probes) + &quot;. Ctrl+C stops the monitor.&quot;)
+                    notice = &quot;online&quot;
+                paths = online_paths()
+                if (paths is not None) != api_available:
+                    api_available = paths is not None
+                    log(&quot;MediaMTX API online.&quot; if api_available else
+                        &quot;MediaMTX API unavailable; using decoded frames for publisher health.&quot;)
+                for key, probe in probes.items():
+                    now = time.monotonic()
+                    good, reason = probe.check(now, None if paths is None else f&quot;live/{key}&quot; in paths)
+                    try:
+                        switches[key].update(client, good, reason, now, probe.changes)
+                    except OBSSDKRequestError as exc:
+                        switches[key].candidate = None
+                        switches[key].report(f&quot;OBS request failed ({exc}); verify the scene and source names&quot;)
+                time.sleep(POLL)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except Exception as exc:
+                # Reconnect to OBS after a restart instead of replacing program scenes.
+                if notice != &quot;error&quot;:
+                    log(f&quot;Connection/monitor error ({type(exc).__name__}: {exc}). Retrying in 3 s.&quot;)
+                    notice = &quot;error&quot;
+                if client is not None:
+                    with suppress(Exception):
+                        client.disconnect()
+                client = None
+                time.sleep(3)
+    except KeyboardInterrupt:
+        log(&quot;Monitor stopped.&quot;)
+    finally:
+        for probe in probes.values():
+            probe.stop()
+        if client is not None:
+            with suppress(Exception):
+                client.disconnect()
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre></details></main><script>(() => {
+  const panel = document.getElementById('sync-work');
+  const mode = panel.querySelector('#format');
+  const boxes = Array.from(panel.querySelectorAll('input[data-key]'));
+  const status = panel.querySelector('#sync-status');
+  const fields = boxes.map(box => ({
+    box,
+    unit: panel.querySelector('#unit-' + box.dataset.key),
+    result: panel.querySelector('#result-' + box.dataset.key)
+  }));
+  const isFrame = field => mode.value === 'frames' && field.box.dataset.key !== 'mic';
+  function update() {
+    const values = fields.map(field => {
+      field.unit.textContent = isFrame(field) ? 'frame' : 'ms';
+      if (field.box.value.trim() === '' || !field.box.validity.valid) return null;
+      const raw = Number(field.box.value);
+      if (!Number.isFinite(raw)) return null;
+      return isFrame(field) ? raw * 1000 / 30 : raw;
+    });
+    const ready = values.every(value => value !== null);
+    const target = ready ? Math.max(...values) : null;
+    fields.forEach((field, i) => {
+      field.result.textContent = ready ? Math.round(target - values[i]) + ' ms' : '—';
+    });
+    status.textContent = ready ? 'Latest channel at ' + Number(target.toFixed(2)) +
+      ' ms on your time reference. Apply these delays with the previous offsets at zero.' :
+      'Enter all five camera arrivals and the master mic arrival for the same clap or set of trials.';
+  }
+  panel.addEventListener('input', update);
+  mode.addEventListener('change', () => { fields.forEach(f => f.box.value = ''); update(); });
+  panel.querySelector('#sample').addEventListener('click', () => {
+    mode.value = 'frames';
+    [3,6,54,60,72,50].forEach((n,i) => { fields[i].box.value = n; });
+    update();
+  });
+  panel.querySelector('#clear').addEventListener('click', () => {
+    fields.forEach(f => f.box.value = ''); update();
+  });
+  update();
+})();
+</script></body></html>

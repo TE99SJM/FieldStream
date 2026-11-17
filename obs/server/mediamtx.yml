@@ -1,0 +1,38 @@
+# MediaMTX v1.21.4. Cameras publish over the field LAN; OBS and probes read locally.
+logLevel: info
+logDestinations: [stdout]
+rtmp: true
+rtmpAddress: ":1935"
+rtmpEncryption: "no"
+rtsp: false
+hls: false
+webrtc: false
+srt: false
+moq: false
+playback: false
+metrics: false
+pprof: false
+api: true
+apiAddress: "127.0.0.1:9997"
+
+authMethod: internal
+authInternalUsers:
+  - user: any
+    ips: ["192.168.77.0/24", "127.0.0.1"]
+    permissions:
+      - action: publish
+  - user: any
+    ips: ["127.0.0.1"]
+    permissions:
+      - action: read
+      - action: api
+
+pathDefaults:
+  source: publisher
+  overridePublisher: false
+paths:
+  # Optional primary camera on Linux when using Quik instead of USB networking.
+  live/gopro1: {}
+  live/dji: {}
+  live/gopro2: {}
+  live/gopro3: {}

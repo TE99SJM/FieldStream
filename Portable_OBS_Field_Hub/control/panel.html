@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#162822"><title>Field switcher</title>
+  <link rel="stylesheet" href="/panel.css"><script src="/panel.js" defer></script>
+</head>
+<body>
+<main>
+  <header><h1>Field switcher</h1><span id="broadcast" class="state" hidden></span></header>
+  <section id="pair" aria-labelledby="pair-title" hidden>
+    <h2 id="pair-title">Pair this device</h2>
+    <p>Enter the pairing key shown on the hub, or open its pairing link.</p>
+    <form><label for="key">Pairing key</label><input id="key" type="password" autocomplete="off" required>
+    <button type="submit" class="primary">Connect</button></form>
+  </section>
+  <div id="controls" hidden>
+    <section class="program"><div><span class="eyebrow">Program</span><h2 id="current">Connecting…</h2></div>
+      <button class="refresh" id="picture" type="button">Snapshot</button></section>
+    <img id="preview" alt="Requested program snapshot" hidden>
+    <section aria-labelledby="layouts"><h3 id="layouts">Layouts</h3><div class="layout-list" id="mixes"></div></section>
+    <section aria-labelledby="cameras"><h3 id="cameras">Single cameras</h3><div class="camera-list" id="singles"></div></section>
+  </div>
+  <p id="message" role="status" aria-live="polite"></p>
+</main></body></html>

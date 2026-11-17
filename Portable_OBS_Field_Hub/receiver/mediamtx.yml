@@ -1,0 +1,49 @@
+# MediaMTX v1.21.4 for Windows x64. This exact LAN address must belong to the hub.
+logLevel: info
+logDestinations: [stdout]
+readTimeout: 10s
+writeTimeout: 10s
+
+# Cameras publish to rtmp://192.168.77.10/live/<name> on the private camera LAN.
+rtmp: true
+rtmpAddress: 192.168.77.10:1935
+rtmpEncryption: "no"
+
+# OBS and the health monitor read the same incoming feeds locally, by TCP.
+rtsp: true
+rtspAddress: 127.0.0.1:8554
+rtspTransports: [tcp]
+rtspEncryption: "no"
+api: true
+apiAddress: 127.0.0.1:9997
+metrics: true
+metricsAddress: 127.0.0.1:9998
+hls: false
+webrtc: false
+srt: false
+moq: false
+playback: false
+pprof: false
+
+authMethod: internal
+authInternalUsers:
+  - user: any
+    ips: [192.168.77.0/24]
+    permissions:
+      - action: publish
+  - user: any
+    ips: [127.0.0.1]
+    permissions:
+      - action: read
+      - action: api
+      - action: metrics
+
+pathDefaults:
+  source: publisher
+  overridePublisher: false
+
+paths:
+  live/dji: {}
+  live/gopro1: {}
+  live/gopro2: {}
+  live/gopro3: {}

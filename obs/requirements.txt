@@ -1,0 +1,2 @@
+obsws-python==1.8.1 --hash=sha256:dbdba02b8641ac3f30bff16107c1bba11c6e5b6884ae85698038f0d593baaf6c
+websocket-client==1.9.0 --hash=sha256:af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef

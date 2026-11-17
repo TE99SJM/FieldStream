@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111915"><title>Mobile Camera Hub</title><link rel="stylesheet" href="/assets/style.css"><script defer src="/assets/app.js"></script></head>
+<body><header><div class="shell mast"><div class="identity"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><strong>Mobile Camera Hub</strong></div><span id="air" class="pill">Standby</span></div></header>
+<main class="shell">
+<section id="pair" class="pair"><div class="kicker">Operator access</div><h1>Connect to the hub</h1><p>Enter the control key from the hub’s terminal.</p><form id="login"><label for="key">Control key</label><div class="entry"><input id="key" autocomplete="off" autocapitalize="none" spellcheck="false" required><button class="primary">Connect</button></div></form><p id="loginError" role="alert"></p></section>
+<section id="desk" hidden>
+<div class="titlebar"><div><h1>Switcher</h1></div><button id="disconnect" class="quiet">Disconnect</button></div>
+<div class="summary"><div><small>Program</small><strong id="program">—</strong></div><div><small>OBS output</small><strong id="output">—</strong></div><div><small>Receiver</small><strong id="receiver">—</strong></div></div>
+<p id="issue" role="status" hidden></p>
+<section><div class="sectionhead"><h2>Program scenes</h2><label class="check"><input type="checkbox" id="showPreview">Preview</label></div><img id="preview" hidden alt="Latest OBS program frame"><div id="scenes" class="scenegrid"></div></section>
+<section><div class="sectionhead"><h2>Camera inputs</h2><span class="hint">Measured ingest FPS</span></div><div id="inputs"></div></section>
+<section><div class="sectionhead"><h2>Setup &amp; sync</h2></div><div class="tools"><button id="build">Build OBS scenes</button><a href="/slate">Open sync slate</a></div><p id="cal" class="hint"></p><div id="delays"></div></section>
+<p role="status" id="message"></p></section></main></body></html>
