@@ -12,6 +12,7 @@ Choose **one** launch mode per session. Each mode manages its own receiver, scen
 | --- | --- | --- |
 | Five-camera grid, PiP and automatic standby slates | Windows x64, Linux and macOS x64/arm64 | [OBS setup and launcher guide](obs/Field_Stream_Guide.html) |
 | Five-camera portable rig with phone panel and sync target | Windows x64 | [Portable hub guide](Portable_OBS_Field_Hub/OPEN-FIRST.html) |
+| Dual-quality browser grid, one-tap HQ cuts and per-camera backups | Windows, Linux and macOS desktop | [Dual-quality hub setup](DualQualityHub/README.md) |
 | Python capture, touch dashboard and measured sync offsets | Windows x64 | [Mobile Camera Hub setup](MobileCameraHub/README.md) |
 
 Open the HTML guides locally after cloning. Their platform kit directories correspond to the folders above. The Python profile ships with four cameras. Its USB capture uses DirectShow. Linux primary GoPro USB support depends on the model and uses the USB network interface documented in the OBS guide.

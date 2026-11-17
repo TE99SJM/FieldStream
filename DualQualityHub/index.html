@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111714"><title>FieldStream · Camera control</title>
+<style>
+:root{color-scheme:dark;--bg:#101512;--panel:#191f1b;--edge:#354039;--faint:#a4afa6;--lime:#c7ed85;--red:#ff6564;--mono:ui-monospace,Consolas,monospace;font:16px Inter,system-ui,sans-serif;background:var(--bg);color:#f1f4ec}
+*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+.wrap{max-width:1440px;margin:auto;padding:0 clamp(16px,4vw,58px)}header{border-bottom:1px solid var(--edge);background:#171e19}.bar{min-height:68px;display:flex;align-items:center;gap:12px}.logo{width:32px;height:32px;border:1px solid #608045;background:var(--lime);color:#22311f;display:grid;grid-auto-flow:column;align-items:center;justify-content:center;gap:3px;border-radius:8px}.logo i{display:block;width:3px;height:10px;background:currentColor;border-radius:2px;transform:skew(-9deg)}.logo i:nth-child(2){height:20px}.logo i:last-child{height:14px}.brand{font-size:20px;font-weight:720;letter-spacing:-1px}.control{margin-left:auto;background:transparent;color:#e5eadf;border:1px solid #4a584f;border-radius:7px;padding:10px 14px;min-height:42px}
+main{padding-bottom:40px!important}.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:32px 0 20px}h1{font-size:clamp(30px,4vw,48px);letter-spacing:-.06em;line-height:1;margin:0;font-weight:610}.format,.tag,.channel,.state,.small{font:11px var(--mono);letter-spacing:.055em;text-transform:uppercase}.format{color:var(--faint);text-align:right}
+.summary{border:1px solid var(--edge);border-radius:10px;display:grid;grid-template-columns:1.6fr repeat(3,1fr);overflow:hidden;background:var(--panel);margin-bottom:18px}.stat{padding:13px 18px;border-right:1px solid var(--edge);min-width:0}.stat:last-child{border:none}.small{color:var(--faint);display:block;margin-bottom:5px}.val{font-size:15px;font-weight:580;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}.tile{position:relative;display:block;min-width:0;overflow:hidden;border:1px solid var(--edge);background:var(--panel);color:inherit;text-align:left;border-radius:10px;padding:0;touch-action:manipulation}.tile.ready:hover{border-color:var(--lime)}.tile.live{border:2px solid var(--red)}.tile.live .frame{margin:-1px -1px 0}.frame{display:grid;place-items:center;aspect-ratio:16/9;position:relative;overflow:hidden;background-color:#151b17;background-image:linear-gradient(#7587760d 1px,transparent 1px),linear-gradient(90deg,#7587760d 1px,transparent 1px);background-size:24px 24px}.aim{width:28px;height:28px;position:relative;display:block;margin:0 auto 10px;background:linear-gradient(#536157,#536157) center/100% 1px no-repeat,linear-gradient(#536157,#536157) center/1px 100% no-repeat}.placeholder{color:#95a295;text-align:center;font:11px var(--mono);letter-spacing:.02em}.frame video{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#070a08}.frame.playing video{display:block}.channel,.tally{position:absolute;top:10px;padding:5px 8px;border-radius:4px;background:#0b100de3;color:#e1e7dc}.channel{left:10px}.tally{display:none;right:10px;background:var(--red);color:#260b0c;font:bold 11px var(--mono);letter-spacing:.04em}.live .tally{display:block}.meta{display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:54px}.name{font-size:17px;font-weight:600;letter-spacing:-.03em}.tag{color:var(--faint);font-size:10px}.state{margin-left:auto;white-space:nowrap;color:var(--faint);font-size:10px}.state:before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:currentColor}.ready .state{color:var(--lime)}.warn .state{color:#f2c677}.notice{font-size:14px;color:#f5cd89;margin:15px 0}.notice:empty{display:none}
+dialog{color:inherit;background:var(--panel);border:1px solid var(--edge);border-radius:12px;max-width:min(390px,92vw);padding:24px}dialog::backdrop{background:#070b08bd}h2{margin:0 0 12px;letter-spacing:-.04em}p{color:#c1cabf;font-size:14px}input{background:var(--bg);border:1px solid var(--edge);color:inherit;border-radius:5px;width:100%;padding:12px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.actions button{border:1px solid var(--edge);border-radius:6px;background:transparent;padding:9px 14px;color:inherit}.actions .primary{background:var(--lime);color:#172115}
+@media(max-width:750px){.summary{grid-template-columns:1.2fr 1fr}.stat{padding:10px 12px}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--edge)}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.meta{flex-wrap:wrap;gap:3px 6px;padding:9px}.name{font-size:14px}.state{width:100%;margin:2px 0 0}.channel,.tally{font-size:9px;padding:3px 5px;top:5px}.channel{left:5px}.tally{right:5px}.top{padding:24px 0 16px}.format{font-size:10px}.bar{min-height:58px}.aim{width:16px;height:16px;margin-bottom:4px}}
+@media(max-width:350px){.grid{grid-template-columns:1fr}.format{display:none}}
+</style></head><body>
+<header><div class="wrap bar"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span><strong class="brand">FieldStream</strong><button class="control" id="pair">Unlock switching</button></div></header>
+<main class="wrap"><div class="top"><h1>Camera multiview</h1><span class="format">WebRTC previews<br>480p · 15 fps</span></div>
+<section class="summary" aria-label="Output status">
+<div class="stat"><span class="small">On program</span><div class="val" id="program">Checking…</div></div>
+<div class="stat"><span class="small">HQ inputs</span><div class="val" id="inputs">—</div></div>
+<div class="stat"><span class="small">Broadcast</span><div class="val" id="stream">—</div></div>
+<div class="stat"><span class="small">Master recording</span><div class="val" id="record">—</div></div></section>
+<p class="notice" id="issue" role="status"></p><p class="notice" id="feedback" role="status"></p>
+<section class="grid" id="grid" aria-label="Tap a camera to take its HQ feed"></section></main>
+<template id="tile"><button class="tile"><span class="frame"><span class="placeholder"><i class="aim"></i><span class="hint">Awaiting input</span></span><video playsinline autoplay muted disablepictureinpicture></video><span class="channel"></span><span class="tally">● PROGRAM</span></span><span class="meta"><span class="name"></span><span class="tag"></span><span class="state"></span></span></button></template>
+<dialog id="dialog"><form id="form"><h2>Operator access</h2><p>Enter the key shown in the hub terminal to switch the program camera.</p><label for="secret">Operator key</label><input type="password" id="secret" autocomplete="off" required><div class="actions"><button type="button" id="cancel">Close</button><button class="primary">Unlock</button></div></form></dialog>
+<script>
+'use strict';
+const el=id=>document.getElementById(id), cards=new Map();
+let key=sessionStorage.getItem('fieldstream-key')||'',busy=false, cycle=0, timer=null;
+function pairLabel(){el('pair').textContent=key?'Operator access':'Unlock switching'}
+pairLabel();el('pair').onclick=()=>{el('secret').value=key;el('dialog').showModal()};
+el('cancel').onclick=()=>el('dialog').close();
+el('form').onsubmit=e=>{e.preventDefault();key=el('secret').value.trim();sessionStorage.setItem('fieldstream-key',key);pairLabel();el('dialog').close();el('feedback').textContent=''};
+function discard(card){
+  card.epoch++;const pc=card.pc;card.pc=null;
+  if(pc){pc.onconnectionstatechange=null;pc.close()}
+  if(card.session){fetch(card.session,{method:'DELETE',keepalive:true}).catch(()=>{});card.session=null}
+  card.video.srcObject=null;card.frame.classList.remove('playing');
+}
+function waitIce(pc){
+  return new Promise(resolve=>{
+    if(pc.iceGatheringState==='complete')return resolve();
+    let t;const done=()=>{clearTimeout(t);pc.removeEventListener('icegatheringstatechange',change);resolve()};
+    const change=()=>{if(pc.iceGatheringState==='complete')done()};
+    t=setTimeout(done,2200);pc.addEventListener('icegatheringstatechange',change);
+  });
+}
+async function preview(card){
+  const epoch=card.epoch, current=()=>epoch===card.epoch;
+  try {
+    const pc=new RTCPeerConnection({iceServers:[]});card.pc=pc;
+    pc.addTransceiver('video',{direction:'recvonly'});
+    pc.ontrack=e=>{if(current())card.video.srcObject=e.streams[0]||new MediaStream([e.track])};
+    pc.onconnectionstatechange=()=>{if(current()&&['failed','disconnected'].includes(pc.connectionState)){discard(card);card.failure='Preview reconnecting';card.retry=Date.now()+1500}};
+    await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);if(!current())return;
+    const r=await fetch('/api/preview/'+card.id,{method:'POST',headers:{'Content-Type':'application/sdp'},body:pc.localDescription.sdp,signal:AbortSignal.timeout(12000)});
+    if(!r.ok)throw Error('Signaling failed');
+    const session=r.headers.get('Location');
+    if(!current()){if(session)fetch(session,{method:'DELETE'}).catch(()=>{});return}
+    card.session=session;
+    await pc.setRemoteDescription({type:'answer',sdp:await r.text()});
+    card.video.play().catch(()=>{});
+  }catch(e){if(current()){discard(card);card.failure='Preview unavailable · retrying';card.retry=Date.now()+3500;card.hint.textContent=card.failure}}
+}
+function make(c,i){
+  const tile=el('tile').content.firstElementChild.cloneNode(true),q=s=>tile.querySelector(s);
+  const card={id:c.id,tile,frame:q('.frame'),hint:q('.hint'),video:q('video'),state:q('.state'),pc:null,epoch:0,retry:0,available:false,session:null};
+  q('.channel').textContent='CAM '+String(i+1).padStart(2,'0');
+  q('.name').textContent=c.name;q('.tag').textContent=c.link;
+  card.video.onplaying=()=>{if(card.pc){card.frame.classList.add('playing');card.failure=''}};
+  tile.onclick=()=>take(card);el('grid').append(tile);cards.set(c.id,card);return card;
+}
+async function take(c){
+  if(!c.available||busy)return;
+  if(!key){el('pair').click();return}
+  busy=true;
+  try{
+    const r=await fetch('/api/take/'+c.id,{method:'POST',headers:{Authorization:'Bearer '+key},signal:AbortSignal.timeout(10000)});
+    const b=await r.json();if(!r.ok)throw Error(b.detail||'Cut failed');
+    el('feedback').textContent='';
+  }catch(e){el('feedback').textContent=e.message}
+  finally{busy=false;refresh()}
+}
+async function refresh(){
+  clearTimeout(timer);const seq=++cycle;
+  try{
+    const r=await fetch('/api/status',{cache:'no-store',signal:AbortSignal.timeout(9000)});if(!r.ok)throw Error();
+    const s=await r.json();if(seq!==cycle)return;
+    const obs=s.obs,owned=obs.connected&&obs.collection===s.collection;
+    const p=owned?s.cameras.find(c=>c.scene===obs.scene):null;
+    el('program').textContent=p?p.name:(obs.scene||'OBS offline');
+    el('inputs').textContent=s.media?s.cameras.filter(c=>c.hq==='ready').length+' / '+s.cameras.length+' ready':'Receiver offline';
+    el('stream').textContent=obs.connected?(obs.stream?'On air':'Standby'):'Unknown';
+    el('record').textContent=obs.connected?(obs.record?'Recording':'Stopped'):'Unknown';
+    el('issue').textContent=!s.media?'Media server offline.':!obs.connected?'OBS disconnected. Previews remain available.':!owned?'Select the FieldStream Dual Hub scene collection in OBS.':'';
+    s.cameras.forEach((c,i)=>{
+      const a=cards.get(c.id)||make(c,i),ready=c.hq==='ready',live=!!p&&p.id===c.id;
+      a.available=ready&&owned;a.tile.setAttribute('aria-disabled',String(!a.available));
+      a.tile.setAttribute('aria-label','Take '+c.name+' to program');a.tile.setAttribute('aria-pressed',String(live));
+      a.tile.classList.toggle('live',live);a.tile.classList.toggle('ready',ready);
+      a.tile.classList.toggle('warn',!ready&&c.ingest!=='offline');
+      a.state.textContent=ready?'HQ ready':c.hq==='stalled'?'HQ stalled':c.ingest==='offline'?'Offline':'HQ starting';
+      a.hint.textContent=c.proxy==='ready'?(a.failure||'Connecting preview'):ready?'Preview unavailable':'Awaiting input';
+      if(c.proxy==='ready'&&!a.pc&&Date.now()>a.retry){a.retry=Date.now()+3000;preview(a)}
+      if(c.proxy!=='ready'){a.failure='';if(a.pc)discard(a)}
+      if(a.pc && !a.frame.classList.contains('playing') && Date.now()>a.retry+15000){discard(a);a.retry=Date.now()+1000}
+    });
+  }catch(e){
+    if(seq!==cycle)return;el('issue').textContent='Hub connection lost. Reconnecting…';
+    for(const id of ['program','inputs','stream','record'])el(id).textContent='Unknown';
+    for(const a of cards.values()){a.available=false;a.tile.classList.remove('live','ready');a.tile.setAttribute('aria-pressed','false');a.tile.setAttribute('aria-disabled','true');a.state.textContent='Unknown';if(a.pc)discard(a)}
+  }finally{if(seq===cycle)timer=setTimeout(refresh,1250)}
+}
+window.addEventListener('pagehide',()=>{for(const a of cards.values())discard(a)});refresh();
+</script></body></html>

@@ -1,0 +1,72 @@
+# MediaMTX 1.21.4. Run from the kit directory with ffmpeg on PATH.
+# The launcher scopes LAN listeners/ICE to --ip and publisher access to --network.
+api: yes
+apiAddress: 127.0.0.1:9997
+rtmp: yes
+rtmpAddress: :1935
+rtsp: yes
+rtspAddress: 127.0.0.1:8554
+rtspTransports: [tcp]
+webrtc: yes
+# The dashboard relays WHEP signaling locally; the browser receives ICE media directly.
+webrtcAddress: 127.0.0.1:8889
+webrtcLocalUDPAddress: :8189
+webrtcLocalTCPAddress: :8189
+webrtcICEServers2: []
+hls: no
+srt: no
+moq: no
+playback: no
+metrics: no
+pprof: no
+
+authMethod: internal
+authInternalUsers:
+  - user: any
+    ips: [127.0.0.1]
+    permissions:
+      - action: api
+      - action: read
+      - action: publish
+  - user: any
+    ips: [192.168.77.0/24]
+    permissions:
+      - action: publish
+        path: '~^live/(cam_(sony|osmo|gopro[123])|dji|gopro[123])$'
+
+pathDefaults:
+  overridePublisher: no
+  recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f_%z
+  recordFormat: fmp4
+  recordPartDuration: 1s
+  recordSegmentDuration: 5m
+  recordDeleteAfter: 0s
+
+paths:
+  '~^live/cam_([a-z0-9]+)$':
+    # Native packet forwarding. Audio and video retain the incoming codec/quality.
+    forward:
+      - dest: 'rtsp://127.0.0.1:8554/live/cam_$G1_hq'
+    # runOnReady is the backwards-compatible name of runOnAvailable in 1.21.4.
+    # MediaMTX expands G1 from the source path and owns the worker lifetime.
+    runOnReady: >-
+      ffmpeg -nostdin -hide_banner -loglevel warning -rtsp_transport tcp
+      -threads 2 -i rtsp://127.0.0.1:8554/live/cam_$G1
+      -map 0:v:0 -an -filter_threads 1
+      -vf fps=15,scale=-2:480,setsar=1 -pix_fmt yuv420p
+      -c:v libx264 -threads 2 -preset ultrafast -tune zerolatency
+      -profile:v baseline -bf 0 -g 15 -keyint_min 15 -sc_threshold 0
+      -b:v 500k -maxrate 650k -bufsize 500k
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/live/cam_${G1}_proxy
+    runOnReadyRestart: yes
+  '~^live/cam_[a-z0-9]+_hq$':
+    record: yes
+  '~^live/cam_[a-z0-9]+_proxy$': {}
+  live/gopro1:
+    forward: [{dest: rtsp://127.0.0.1:8554/live/cam_gopro1}]
+  live/dji:
+    forward: [{dest: rtsp://127.0.0.1:8554/live/cam_osmo}]
+  live/gopro2:
+    forward: [{dest: rtsp://127.0.0.1:8554/live/cam_gopro2}]
+  live/gopro3:
+    forward: [{dest: rtsp://127.0.0.1:8554/live/cam_gopro3}]
